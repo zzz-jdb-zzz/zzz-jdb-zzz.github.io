@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>USYVL T-Shirt Request</title>
+  <meta name="robots" content="noindex" />
   <style>
-    :root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#3b82f6; --danger:#ef4444; --border:#1f2937; }
+    :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#3b82f6;--danger:#ef4444;--border:#1f2937}
     *{box-sizing:border-box}
     body{margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
       background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);color:var(--text)}
@@ -16,7 +17,7 @@
       border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
     label{display:block;font-weight:600;margin:16px 0 6px}
     .hint{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input[type="text"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
+    input[type="text"],input[type="email"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
       background:#0b1220;color:var(--text);outline:none}
     textarea{min-height:110px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr;gap:12px}
@@ -26,46 +27,45 @@
       padding:10px 14px;border-radius:10px;font-weight:600}
     button.primary{background:var(--accent);border-color:transparent;color:#fff}
     button.danger{background:var(--danger);border-color:transparent;color:#fff}
-    .out{margin-top:14px;white-space:pre-wrap;font-size:14px}
-    .ok{color:#86efac}.err{color:#fecaca}.muted{color:var(--muted)}
-    .hidden{display:none}
     .counter{font-size:12px;color:var(--muted);text-align:right}
+    .hidden{display:none}
+    .ok{color:#86efac}.err{color:#fecaca}
     .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
   </style>
-  <!-- No Klaviyo onsite script on purpose -->
 </head>
 <body>
   <div class="wrap">
     <header style="margin-bottom:16px;">
       <h1>USYVL T-Shirt Request</h1>
-      <p class="lead">Fill this out to request/replace a league T-shirt. We’ll email the coordinator automatically.</p>
+      <p class="lead">Fill this out to request/replace a league T-shirt. Submissions are stored in Formspree.</p>
     </header>
 
     <section class="card" aria-labelledby="form-title">
       <h2 id="form-title" class="sr">T-Shirt Request Form</h2>
 
-      <form id="form" novalidate>
-        <!-- Honeypot (spam trap) -->
-        <input type="text" id="website" name="website" class="sr" tabindex="-1" autocomplete="off" />
+      <!-- REPLACE the action URL with your Formspree endpoint -->
+      <form id="form" action="https://formspree.io/f/xwprqdkb" method="POST">
+        <!-- Honeypot (Formspree ignores bots here) -->
+        <input class="sr" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
 
         <div class="row two">
           <div>
-            <label for="childName">Child’s name</label>
+            <label for="childName">Child’s name *</label>
             <span class="hint">First and last name.</span>
-            <input id="childName" type="text" placeholder="e.g., Ava Martinez" />
+            <input id="childName" name="child_name" type="text" required placeholder="e.g., Ava Martinez" />
           </div>
           <div>
-            <label for="team">Team number or name</label>
-            <span class="hint">If unknown, write “Unknown”.</span>
-            <input id="team" type="text" placeholder="e.g., Team 7 — Blue" />
+            <label for="team">Team number or name *</label>
+            <span class="hint">If unknown, type “Unknown”.</span>
+            <input id="team" name="team" type="text" required placeholder="e.g., Team 7 — Blue" />
           </div>
         </div>
 
         <div class="row two">
           <div>
-            <label for="size">T-shirt size</label>
+            <label for="size">T-shirt size *</label>
             <span class="hint">Youth: YS, YM, YL · Adult: AS, AM, AL, XL, XXL, XXXL</span>
-            <select id="size">
+            <select id="size" name="size" required>
               <option value="">Select a size…</option>
               <option>YS</option><option>YM</option><option>YL</option>
               <option>AS</option><option>AM</option><option>AL</option>
@@ -73,9 +73,9 @@
             </select>
           </div>
           <div>
-            <label for="reason">Reason for request</label>
+            <label for="reason">Reason for request *</label>
             <span class="hint">Choose one.</span>
-            <select id="reason">
+            <select id="reason" name="reason" required>
               <option value="">Select a reason…</option>
               <option>Never got it</option>
               <option>Got wrong size</option>
@@ -86,179 +86,48 @@
 
         <div id="otherWrap" class="hidden">
           <label for="otherText">Explain “Other” (max 250 chars)</label>
-          <textarea id="otherText" maxlength="250" placeholder="Brief explanation…"></textarea>
+          <textarea id="otherText" name="reason_other" maxlength="250" placeholder="Brief explanation…"></textarea>
           <div class="counter"><span id="count">0</span>/250</div>
         </div>
 
-        <div class="btns">
-          <button type="submit" class="primary" id="sendBtn">Send Request</button>
-          <button type="button" class="danger" id="clearBtn">Reset</button>
-          <button type="button" id="pingBtn" title="Quick test that does not use the form.">Ping Klaviyo</button>
+        <!-- Optional: parent contact, if you want it in the row -->
+        <div class="row two">
+          <div>
+            <label for="parentEmail">Parent email (optional)</label>
+            <input id="parentEmail" name="parent_email" type="email" placeholder="parent@email.com" />
+          </div>
+          <div>
+            <label for="notes">Notes (optional)</label>
+            <input id="notes" name="notes" type="text" placeholder="Any extra info…" />
+          </div>
         </div>
 
-        <div id="status" class="out"></div>
-        <div class="out muted">This page stores nothing on a server; it only fires a private coordinator email via a Klaviyo Flow.</div>
+        <!-- Redirect to a clean thank-you page after submit -->
+        <input type="hidden" name="_redirect" value="https://zzz-jdb-zzz.github.io/thanks.html" />
+        <!-- Optional: subject if you turn on email notifications in Formspree -->
+        <input type="hidden" name="_subject" value="USYVL T-Shirt Request" />
+
+        <div class="btns">
+          <button class="primary" type="submit">Send Request</button>
+          <button class="danger" type="reset" id="resetBtn">Reset</button>
+        </div>
+        <div id="status" class="hint"></div>
       </form>
     </section>
   </div>
 
   <script>
-    // ================= CONFIG =================
-    // Your Klaviyo Public API Key / Site ID (from Settings → API Keys)
-    const KLAVIYO_SITE_ID = "Ye2PfH";
-    // ==========================================
-
-    const $ = (id) => document.getElementById(id);
-    const form = $('form'),
-          childName = $('childName'),
-          team = $('team'),
-          size = $('size'),
-          reason = $('reason'),
-          otherWrap = $('otherWrap'),
-          otherText = $('otherText'),
-          statusBox = $('status'),
-          sendBtn = $('sendBtn'),
-          clearBtn = $('clearBtn'),
-          pingBtn = $('pingBtn'),
-          honeypot = $('website'),
-          count = $('count');
-
-    function setStatus(msg, cls='') {
-      statusBox.className = 'out ' + cls;
-      statusBox.textContent = msg;
-      console.log('[tshirt]', msg);
-    }
-
-    reason.addEventListener('change', () => {
-      const isOther = reason.value === 'Other';
-      otherWrap.classList.toggle('hidden', !isOther);
-      if (!isOther) otherText.value = '';
-      if (count) count.textContent = otherText.value.length || 0;
+    // Tiny UX niceties (no dependency on Formspree)
+    const reasonEl = document.getElementById('reason');
+    const otherWrap = document.getElementById('otherWrap');
+    const otherText = document.getElementById('otherText');
+    const count = document.getElementById('count');
+    reasonEl.addEventListener('change', () => {
+      const show = reasonEl.value === 'Other';
+      otherWrap.classList.toggle('hidden', !show);
+      if (!show) { otherText.value = ''; count.textContent = '0'; }
     });
-    otherText.addEventListener('input', () => { if (count) count.textContent = otherText.value.length; });
-
-    clearBtn.addEventListener('click', () => {
-      form.reset(); otherWrap.classList.add('hidden'); if (count) count.textContent='0'; setStatus('');
-    });
-
-    function validate() {
-      if (honeypot.value) return "Spam detected.";
-      if (!childName.value.trim()) return "Please enter the child's name.";
-      if (!team.value.trim()) return "Please enter the team number or name (use 'Unknown' if not sure).";
-      if (!size.value) return "Please choose a T-shirt size.";
-      if (!reason.value) return "Please choose a reason.";
-      if (reason.value === 'Other' && !otherText.value.trim()) return "Please explain the 'Other' reason (max 250 chars).";
-      return '';
-    }
-
-    function eventProps(extra={}) {
-      return Object.assign({
-        child_name: childName.value.trim(),
-        team: team.value.trim(),
-        size: size.value,
-        reason: reason.value,
-        reason_other: reason.value === 'Other' ? otherText.value.trim() : '',
-        page_url: location.href
-      }, extra);
-    }
-
-    // Generate a simple anonymous id for the event
-    function anonId() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-      });
-    }
-
-    // ---- Transport helpers (3 fallbacks) ----
-    function encodeTrackPayload(name, props) {
-      const payload = {
-        token: KLAVIYO_SITE_ID,
-        event: name,
-        properties: props,
-        customer_properties: { "$anonymous_id": anonId() },
-        time: Math.floor(Date.now()/1000)
-      };
-      const json = JSON.stringify(payload);
-      return btoa(unescape(encodeURIComponent(json)));
-    }
-
-    // 1) sendBeacon (best when available)
-    function trackViaBeacon(name, props) {
-      try {
-        const data = encodeTrackPayload(name, props);
-        const url = "https://a.klaviyo.com/api/track?data=" + encodeURIComponent(data);
-        if (navigator.sendBeacon) {
-          const ok = navigator.sendBeacon(url);
-          return ok ? Promise.resolve(true) : Promise.reject('beacon-false');
-        }
-        return Promise.reject('beacon-missing');
-      } catch (e) { return Promise.reject(e); }
-    }
-
-    // 2) fetch POST (if CORS allowed by browser)
-    function trackViaFetch(name, props) {
-      // POST to the same GET endpoint is commonly blocked; we’ll still try
-      try {
-        const data = encodeTrackPayload(name, props);
-        return fetch("https://a.klaviyo.com/api/track", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "data=" + encodeURIComponent(data),
-          mode: "no-cors", // avoid CORS errors; we can’t read response, but request is sent
-          keepalive: true
-        }).then(() => true);
-      } catch (e) { return Promise.reject(e); }
-    }
-
-    // 3) image beacon (always works; no CORS)
-    function trackViaImage(name, props) {
-      return new Promise((resolve) => {
-        const data = encodeTrackPayload(name, props);
-        const img = new Image();
-        let done = false;
-        const finish = () => { if (!done) { done = true; resolve(true); } };
-        img.onload = finish;
-        img.onerror = finish; // we can’t read errors cross-domain; assume send
-        img.src = "https://a.klaviyo.com/api/track?data=" + encodeURIComponent(data);
-        setTimeout(finish, 1000); // final fallback
-      });
-    }
-
-    async function trackKlaviyo(name, props) {
-      // Try beacon → fetch → image
-      try { await trackViaBeacon(name, props); return true; } catch {}
-      try { await trackViaFetch(name, props); return true; } catch {}
-      return trackViaImage(name, props);
-    }
-
-    // Debug “Ping Klaviyo” button (doesn’t require filling the form)
-    pingBtn.addEventListener('click', async () => {
-      setStatus('Pinging Klaviyo…', 'muted');
-      const ok = await trackKlaviyo('Tshirt Request', eventProps({ ping: true }));
-      setStatus(ok ? 'Ping sent. Check Klaviyo → Analytics → Metrics for “Tshirt Request”.' :
-                     'Ping failed to send.', ok ? 'ok' : 'err');
-    });
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      setStatus('');
-      const err = validate();
-      if (err) { setStatus(err, 'err'); return; }
-
-      sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
-      try {
-        const ok = await trackKlaviyo('Tshirt Request', eventProps());
-        if (!ok) throw new Error('send failed');
-        setStatus('Request submitted. Thank you! (Coordinator will receive an email.)', 'ok');
-        // Optionally clear:
-        // form.reset(); otherWrap.classList.add('hidden'); if (count) count.textContent='0';
-      } catch (e2) {
-        setStatus('Could not reach Klaviyo from this browser. Try again or contact the coordinator.', 'err');
-      } finally {
-        sendBtn.disabled = false; sendBtn.textContent = 'Send Request';
-      }
-    });
+    otherText?.addEventListener('input', () => count.textContent = otherText.value.length);
   </script>
 </body>
 </html>
