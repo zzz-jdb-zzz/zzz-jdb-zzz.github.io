@@ -14,6 +14,7 @@
       --accent-2: #3b82f6; /* blue-500 */
       --danger: #ef4444;   /* red-500 */
       --border: #1f2937;   /* gray-800 */
+      --warn: #eab308;     /* yellow-500 */
     }
     * { box-sizing: border-box; }
     body {
@@ -58,9 +59,11 @@
     }
     .badge {
       display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px;
-      border-radius: 999px; font-size: 12px; color: #052e12; background: #86efac;
-      font-weight: 700;
+      border-radius: 999px; font-size: 12px; font-weight: 700;
     }
+    .ok { background: #86efac; color: #052e12; }
+    .warn { background: #fef08a; color: #3a2a04; }
+    .err { background: #fecaca; color: #3f0404; }
     .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
     .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
     .sr { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
@@ -125,67 +128,34 @@
       </div>
 
       <label>Skills to work on (choose up to five — one per category)</label>
-      <span class="hint">Options come from your “VB Skills Choice Sheet.csv”. Pick “None” to skip a category.</span>
+      <span class="hint">Loaded live from “VB Skills Choice Sheet.csv”. Pick “None” to skip a category.</span>
 
       <div class="row two">
         <div>
           <label for="skillAttacking">Attacking</label>
-          <select id="skillAttacking">
-            <option>None</option>
-            <option>Statue Spiking</option>
-            <option>Fountain Spiking</option>
-            <option>Arch Spiking</option>
-            <option>Approach (3 step)</option>
-            <option>Approach (4 step)</option>
-            <option>Blocking</option>
-          </select>
+          <select id="skillAttacking"><option>None</option></select>
         </div>
         <div>
           <label for="skillPassing">Passing</label>
-          <select id="skillPassing">
-            <option>None</option>
-            <option>Underarm Passing (Bumping)</option>
-            <option>Overhead Passing (Superman)</option>
-            <option>Setting for a spike</option>
-            <option>Back Setting</option>
-          </select>
+          <select id="skillPassing"><option>None</option></select>
         </div>
       </div>
 
       <div class="row two">
         <div>
           <label for="skillServing">Serving</label>
-          <select id="skillServing">
-            <option>None</option>
-            <option>Underhand Serving</option>
-            <option>Overhead Serving</option>
-            <option>Float Serves</option>
-            <option>Jump Serves</option>
-          </select>
+          <select id="skillServing"><option>None</option></select>
         </div>
         <div>
           <label for="skillStrategy">Strategy</label>
-          <select id="skillStrategy">
-            <option>None</option>
-            <option>Court Movement</option>
-            <option>Digging</option>
-            <option>Court Rotation (4 on 4)</option>
-            <option>Court Rotation (6 on 6)</option>
-            <option>Passing a ball out of the net</option>
-          </select>
+          <select id="skillStrategy"><option>None</option></select>
         </div>
       </div>
 
       <div class="row two">
         <div>
           <label for="skillRules">Rules</label>
-          <select id="skillRules">
-            <option>None</option>
-            <option>Rally Scoring</option>
-            <option>Two Serves Max Rule</option>
-            <option>Touching the net</option>
-            <option>Ball hits the net</option>
-          </select>
+          <select id="skillRules"><option>None</option></select>
         </div>
         <div>
           <label for="constraints">Equipment / constraints</label>
@@ -208,6 +178,10 @@
 
       <div class="out" id="output" aria-live="polite">← Click “Generate Query” to build your AI prompt here.</div>
       <div class="note">
+        <span class="badge ok" id="csvStatus" style="display:none;">Skills loaded from CSV</span>
+        <span class="badge warn" id="csvLoading">Loading skills…</span>
+        <span class="badge err" id="csvError" style="display:none;">CSV not found — using defaults</span>
+        <br />
         <span class="badge" id="speechBadge" style="display:none;">Speech ready</span>
         <span id="speechHint">Voice input works in Chrome/Edge on Android/Windows. If your browser blocks the mic, just type.</span>
       </div>
@@ -221,6 +195,102 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const output = $('output');
+
+    // === CSV CONFIG ===
+    // Must match your uploaded path and name exactly:
+    const CSV_PATH = 'data/VB Skills Choice Sheet.csv';
+
+    // Default fallback options if CSV can't be loaded.
+    const FALLBACK = {
+      Attacking: ["Statue Spiking","Fountain Spiking","Arch Spiking","Approach (3 step)","Approach (4 step)","Blocking"],
+      Passing: ["Underarm Passing (Bumping)","Overhead Passing (Superman)","Setting for a spike","Back Setting"],
+      Serving: ["Underhand Serving","Overhead Serving","Float Serves","Jump Serves"],
+      Strategy: ["Court Movement","Digging","Court Rotation (4 on 4)","Court Rotation (6 on 6)","Passing a ball out of the net"],
+      Rules: ["Rally Scoring","Two Serves Max Rule","Touching the net","Ball hits the net"]
+    };
+
+    // Map headers to select IDs
+    const HEADER_TO_SELECT = {
+      "Attacking": "skillAttacking",
+      "Passing": "skillPassing",
+      "Serving": "skillServing",
+      "Strategy": "skillStrategy",
+      "Rules": "skillRules"
+    };
+
+    // --- CSV loader + parser (handles comma OR tab) ---
+    async function loadCSVAndPopulate() {
+      try {
+        const url = encodeURI(CSV_PATH);
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP '+res.status);
+        const text = await res.text();
+        const parsed = parseCSV(text);
+
+        // Validate headers
+        const needed = Object.keys(HEADER_TO_SELECT);
+        const missing = needed.filter(h => !(h in parsed));
+        if (missing.length) throw new Error('Missing headers: ' + missing.join(', '));
+
+        // Populate selects
+        needed.forEach(h => populateSelect(HEADER_TO_SELECT[h], parsed[h]));
+        $('csvLoading').style.display = 'none';
+        $('csvStatus').style.display = 'inline-flex';
+      } catch (e) {
+        // Fallback population
+        Object.entries(HEADER_TO_SELECT).forEach(([header, selId]) => {
+          populateSelect(selId, FALLBACK[header] || []);
+        });
+        $('csvLoading').style.display = 'none';
+        $('csvError').style.display = 'inline-flex';
+        console.warn('CSV load failed:', e);
+      }
+    }
+
+    function parseCSV(text) {
+      // Normalize line endings
+      const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
+      if (!lines.length) return {};
+      // Decide delimiter: prefer TAB if present in header and commas not dominant
+      const headerLine = lines[0];
+      const useTab = (headerLine.includes('\t') && !headerLine.includes(','));
+      const delim = useTab ? '\t' : ',';
+
+      const headers = headerLine.split(delim).map(s => s.trim());
+      const colCount = headers.length;
+      const cols = {};
+      headers.forEach(h => cols[h] = new Set());
+
+      for (let i = 1; i < lines.length; i++) {
+        const raw = lines[i].split(delim);
+        for (let c = 0; c < colCount; c++) {
+          const h = headers[c];
+          const v = (raw[c] ?? '').trim();
+          if (v) cols[h].add(v);
+        }
+      }
+
+      // Convert sets to arrays, keep insertion order
+      const out = {};
+      headers.forEach(h => out[h] = Array.from(cols[h]));
+      return out;
+    }
+
+    function populateSelect(selectId, options) {
+      const sel = $(selectId);
+      // Clear all except first option if it's "None"
+      sel.innerHTML = '';
+      const none = document.createElement('option');
+      none.textContent = 'None';
+      sel.appendChild(none);
+
+      (options || []).forEach(opt => {
+        const o = document.createElement('option');
+        o.textContent = opt;
+        sel.appendChild(o);
+      });
+      sel.value = 'None';
+    }
 
     function collectSkills() {
       const ids = ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'];
@@ -238,7 +308,6 @@
       const extra = $('situation').value.trim();
 
       const lines = [
-        // No preface per your request
         `Goal: Provide ${mediaType.toLowerCase()}-first resources and step-by-step guidance for a parent who does not play volleyball.`,
         "",
         `Age group: ${ageRange}. Experience: ${exp}.`,
@@ -298,11 +367,7 @@
       $('exp').selectedIndex = 0;
       $('mediaType').value = 'Videos';
       $('surface').value = 'Grass';
-      $('skillAttacking').value = 'None';
-      $('skillPassing').value = 'None';
-      $('skillServing').value = 'None';
-      $('skillStrategy').value = 'None';
-      $('skillRules').value = 'None';
+      ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'].forEach(id => { $(id).value = 'None'; });
       $('constraints').value = 'One volleyball, no net, limited space, 20 minutes';
       $('situation').value = '';
       output.textContent = "← Click “Generate Query” to build your AI prompt here.";
@@ -347,13 +412,16 @@
       setTimeout(()=>t.remove(), 2000);
     }
 
+    // Wire up buttons
     $('genBtn').addEventListener('click', generate);
     $('copyBtn').addEventListener('click', copyQuery);
     $('openBtn').addEventListener('click', openChatGPT);
     $('micBtn').addEventListener('click', startMic);
     $('clearBtn').addEventListener('click', resetAll);
 
-    (function restore() {
+    // Boot: load CSV then restore any saved query
+    (async function boot() {
+      await loadCSVAndPopulate();
       try {
         const q = localStorage.getItem('chatQuery');
         if (q) output.textContent = q;
