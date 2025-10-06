@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Volleyball Parent Coaching Helper</title>
+  <style>
+    :root {
+      --bg: #0f172a;       /* slate-900 */
+      --card: #111827;     /* gray-900 */
+      --muted: #94a3b8;    /* slate-400 */
+      --text: #e5e7eb;     /* gray-200 */
+      --accent: #22c55e;   /* green-500 */
+      --accent-2: #3b82f6; /* blue-500 */
+      --danger: #ef4444;   /* red-500 */
+      --border: #1f2937;   /* gray-800 */
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% -10%, #1e293b 0, #0f172a 60%);
+      color: var(--text);
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 36px); }
+    p.lead { margin: 0 0 22px; color: var(--muted); line-height: 1.5; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    label { display: block; font-weight: 600; margin: 16px 0 6px; }
+    .hint { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: #0b1220; color: var(--text); outline: none;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 720px) {
+      .row.two { grid-template-columns: 1fr 1fr; }
+      .row.three { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button, .linkbtn {
+      appearance: none; border: 1px solid var(--border); cursor: pointer;
+      background: #0b1220; color: var(--text); padding: 10px 14px; border-radius: 10px;
+      font-weight: 600;
+    }
+    button.primary { background: var(--accent-2); border-color: transparent; color: #fff; }
+    button.success { background: var(--accent); border-color: transparent; color: #002b08; }
+    button.danger { background: var(--danger); border-color: transparent; color: #fff; }
+    .out {
+      margin-top: 18px; padding: 14px; background: #0a1221; border: 1px dashed #22304a;
+      border-radius: 10px; white-space: pre-wrap;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px;
+      border-radius: 999px; font-size: 12px; color: #052e12; background: #86efac;
+      font-weight: 700;
+    }
+    .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+    .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
+    .sr { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header style="margin-bottom:16px;">
+      <h1>Volleyball Parent Coaching Helper</h1>
+      <p class="lead">
+        Fill this out and we’ll generate a polished question for ChatGPT (or any AI) that returns
+        the best videos and step-by-step guides for <strong>your</strong> situation.
+      </p>
+    </header>
+
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" class="sr">Parent Input</h2>
+
+      <div class="row two">
+        <div>
+          <label for="age">Child’s age</label>
+          <span class="hint">Numbers only. Used to pick age-appropriate drills.</span>
+          <input id="age" type="number" inputmode="numeric" value="12" min="5" max="18" />
+        </div>
+        <div>
+          <label for="exp">Volleyball experience</label>
+          <span class="hint">Pick the closest match.</span>
+          <select id="exp">
+            <option>Beginner (never played)</option>
+            <option>Novice (some PE/recess experience)</option>
+            <option>Recreational (1 season of rec play)</option>
+            <option>Intermediate (club or 2+ seasons)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="role">Parent/coach comfort level</label>
+          <span class="hint">How much guidance do you want in plain English?</span>
+          <select id="role">
+            <option>Non-player parent: needs simple instructions</option>
+            <option>Some familiarity: can follow basic drills</option>
+            <option>Comfortable with drills and cues</option>
+          </select>
+        </div>
+        <div>
+          <label for="session">Practice setting</label>
+          <span class="hint">Where and with whom will you practice?</span>
+          <select id="session">
+            <option>At home: parent + child; limited space</option>
+            <option>Gym or driveway: parent + child</option>
+            <option>Small group: 2–4 kids with one adult</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="skills">Top skills to improve</label>
+      <span class="hint">Comma-separate. e.g., Serving, Passing, Setting, Hitting, Footwork, Toss, Overhand serve, Underhand serve</span>
+      <input id="skills" type="text" value="Serving, Passing" />
+
+      <label for="constraints">Equipment / constraints</label>
+      <span class="hint">What you have or don’t have. Space/time limits.</span>
+      <input id="constraints" type="text" value="One volleyball, no net, limited space, 20 minutes" />
+
+      <label for="situation">Extra context (optional)</label>
+      <span class="hint">Anything special about your child (confidence, height, handedness, fear of ball, etc.).</span>
+      <textarea id="situation">Child is nervous and new to volleyball. Needs confidence-building drills that are safe and low-impact.</textarea>
+
+      <div class="btns">
+        <button type="button" class="primary" id="genBtn">Generate Query</button>
+        <button type="button" id="copyBtn">Copy Query</button>
+        <button type="button" id="openBtn">Open ChatGPT</button>
+        <button type="button" id="micBtn">🎤 Speak (fills extra context)</button>
+        <button type="button" class="danger" id="clearBtn">Reset</button>
+      </div>
+
+      <div class="out" id="output" aria-live="polite">← Click “Generate Query” to build your AI prompt here.</div>
+      <div class="note">
+        <span class="badge" id="speechBadge" style="display:none;">Speech ready</span>
+        <span id="speechHint">Voice input works in Chrome/Edge on Android/Windows. If your browser blocks the mic, just type.</span>
+      </div>
+    </section>
+
+    <p class="footer">
+      This page stores nothing on a server. Your text stays in your browser until you close the tab.
+    </p>
+  </div>
+
+  <script>
+    // --- Elements
+    const $ = (id) => document.getElementById(id);
+    const fields = ['age','exp','role','session','skills','constraints','situation'];
+    const output = $('output');
+
+    // --- Build the ChatGPT query
+    function buildQuery() {
+      const age = $('age').value.trim();
+      const exp = $('exp').value;
+      const role = $('role').value;
+      const session = $('session').value;
+      const skills = $('skills').value.trim();
+      const constraints = $('constraints').value.trim();
+      const extra = $('situation').value.trim();
+
+      const lines = [
+        "You are an experienced youth volleyball coach and teacher.",
+        "Return: 1) Plain-English step-by-step instructions for a non-player parent to run a 20–30 minute session, 2) 4–6 curated links to short, reputable videos for the exact skills, 3) safety and confidence-building tips, 4) simple progress checks.",
+        "",
+        `Child: age ${age}. Experience: ${exp}.`,
+        `Parent/coach: ${role}. Practice setting: ${session}.`,
+        `Target skills: ${skills}.`,
+        `Equipment/constraints: ${constraints}.`,
+        extra ? `Extra context: ${extra}.` : "",
+        "",
+        "Format the answer with short headings and numbered steps. Keep jargon minimal and define any volleyball terms in-line."
+      ].filter(Boolean);
+
+      return lines.join("\n");
+    }
+
+    function generate() {
+      const q = buildQuery();
+      output.textContent = q;
+      try { localStorage.setItem('chatQuery', q); } catch(_) {}
+    }
+
+    async function copyQuery() {
+      const q = output.textContent.trim();
+      if (!q) { alert("Generate the query first."); return; }
+      try {
+        await navigator.clipboard.writeText(q);
+        toast("Query copied to clipboard.");
+      } catch (e) {
+        // Fallback: select text for manual copy
+        selectOutput();
+        alert("Clipboard blocked. Press Ctrl+C / ⌘C to copy.");
+      }
+    }
+
+    function selectOutput() {
+      const range = document.createRange();
+      range.selectNodeContents(output);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+
+    function openChatGPT() {
+      const q = (output.textContent || "").trim();
+      if (!q) { alert("Generate the query first."); return; }
+      // Always copy so parents can paste immediately after ChatGPT opens
+      navigator.clipboard?.writeText(q).catch(()=>{});
+      // Open ChatGPT in a new tab. (Direct prefill via URL is not guaranteed.)
+      window.open("https://chat.openai.com/", "_blank", "noopener");
+      toast("Opened ChatGPT in a new tab. The prompt is copied—just paste (Ctrl/⌘+V).");
+    }
+
+    function resetAll() {
+      $('age').value = 12;
+      $('exp').selectedIndex = 0;
+      $('role').selectedIndex = 0;
+      $('session').selectedIndex = 0;
+      $('skills').value = "Serving, Passing";
+      $('constraints').value = "One volleyball, no net, limited space, 20 minutes";
+      $('situation').value = "Child is nervous and new to volleyball. Needs confidence-building drills that are safe and low-impact.";
+      output.textContent = "← Click “Generate Query” to build your AI prompt here.";
+      try { localStorage.removeItem('chatQuery'); } catch(_) {}
+    }
+
+    // --- Speech-to-text for the "extra context" field
+    let sr;
+    (function initSpeech() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SR) {
+        sr = new SR();
+        sr.lang = 'en-US';
+        sr.interimResults = false;
+        sr.maxAlternatives = 1;
+        $('speechBadge').style.display = 'inline-flex';
+      }
+    })();
+
+    function startMic() {
+      if (!sr) { alert("Your browser doesn’t support speech recognition. Try Chrome or Edge."); return; }
+      $('micBtn').disabled = true; $('micBtn').textContent = "🎤 Listening…";
+      sr.start();
+      sr.onresult = (e) => {
+        const said = e.results[0][0].transcript || "";
+        const box = $('situation');
+        box.value = (box.value.trim() ? (box.value.trim() + " ") : "") + said;
+      };
+      sr.onerror = (e) => { alert("Mic error: " + (e.error || "unknown")); };
+      sr.onend = () => { $('micBtn').disabled = false; $('micBtn').textContent = "🎤 Speak (fills extra context)"; };
+    }
+
+    // --- Tiny toast
+    function toast(msg) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position:'fixed', left:'50%', bottom:'24px', transform:'translateX(-50%)',
+        background:'#111827', color:'#e5e7eb', padding:'10px 14px', borderRadius:'10px',
+        border:'1px solid #1f2937', boxShadow:'0 6px 20px rgba(0,0,0,0.35)', zIndex: 9999
+      });
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(), 2000);
+    }
+
+    // --- Wire up buttons
+    $('genBtn').addEventListener('click', generate);
+    $('copyBtn').addEventListener('click', copyQuery);
+    $('openBtn').addEventListener('click', openChatGPT);
+    $('micBtn').addEventListener('click', startMic);
+    $('clearBtn').addEventListener('click', resetAll);
+
+    // --- Restore previous query if available
+    (function restore() {
+      try {
+        const q = localStorage.getItem('chatQuery');
+        if (q) output.textContent = q;
+      } catch(_) {}
+    })();
+  </script>
+</body>
+</html>
