@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>USYVL T-Shirt Request</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#3b82f6; --danger:#ef4444; --border:#1f2937; }
+    *{box-sizing:border-box}
+    body{margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);color:var(--text)}
+    .wrap{max-width:720px;margin:0 auto}
+    h1{margin:0 0 10px;font-size:clamp(24px,4vw,36px)}
+    p.lead{margin:0 0 22px;color:var(--muted);line-height:1.5}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--border);
+      border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    label{display:block;font-weight:600;margin:16px 0 6px}
+    .hint{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type="text"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
+      background:#0b1220;color:var(--text);outline:none}
+    textarea{min-height:110px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width:680px){.row.two{grid-template-columns:1fr 1fr}}
+    .btns{display:flex;gap:10px;margin-top:18px}
+    button{appearance:none;border:1px solid var(--border);cursor:pointer;background:#0b1220;color:var(--text);
+      padding:10px 14px;border-radius:10px;font-weight:600}
+    button.primary{background:var(--accent);border-color:transparent;color:#fff}
+    button.danger{background:var(--danger);border-color:transparent;color:#fff}
+    .out{margin-top:14px;white-space:pre-wrap;font-size:14px}
+    .ok{color:#86efac}.err{color:#fecaca}
+    .hidden{display:none}
+    .counter{font-size:12px;color:var(--muted);text-align:right}
+    .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+  </style>
+
+  <!-- ============ KLAVIYO.JS (ONSITE) ============ -->
+  <!-- Replace KLAVIYO_PUBLIC_SITE_ID with your real Public Site ID (looks like PK_xxxxxxxx) -->
+  <script>
+    (function(){
+      var _learnq = window._learnq || []; window._learnq = _learnq;
+      var e = document.createElement('script'); e.type='text/javascript'; e.async=true;
+      e.src='https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=Ye2PfH';
+      var s=document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(e,s);
+    })();
+  </script>
+  <!-- ============================================ -->
+</head>
+<body>
+  <div class="wrap">
+    <header style="margin-bottom:16px;">
+      <h1>USYVL T-Shirt Request</h1>
+      <p class="lead">Fill this out to request/replace a league T-shirt. You’ll see a confirmation after sending.</p>
+    </header>
+
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" class="sr">T-Shirt Request Form</h2>
+
+      <form id="form" novalidate>
+        <!-- Honeypot (spam trap) -->
+        <input type="text" id="website" name="website" class="sr" tabindex="-1" autocomplete="off" />
+
+        <div class="row two">
+          <div>
+            <label for="childName">Child’s name</label>
+            <span class="hint">First and last name.</span>
+            <input id="childName" type="text" placeholder="e.g., Ava Martinez" />
+          </div>
+          <div>
+            <label for="team">Team number or name</label>
+            <span class="hint">If unknown, write “Unknown”.</span>
+            <input id="team" type="text" placeholder="e.g., Team 7 — Blue" />
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="size">T-shirt size</label>
+            <span class="hint">Youth: YS, YM, YL · Adult: AS, AM, AL, XL, XXL, XXXL</span>
+            <select id="size">
+              <option value="">Select a size…</option>
+              <option>YS</option><option>YM</option><option>YL</option>
+              <option>AS</option><option>AM</option><option>AL</option>
+              <option>XL</option><option>XXL</option><option>XXXL</option>
+            </select>
+          </div>
+          <div>
+            <label for="reason">Reason for request</label>
+            <span class="hint">Choose one.</span>
+            <select id="reason">
+              <option value="">Select a reason…</option>
+              <option>Never got it</option>
+              <option>Got wrong size</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="otherWrap" class="hidden">
+          <label for="otherText">Explain “Other” (max 250 chars)</label>
+          <textarea id="otherText" maxlength="250" placeholder="Brief explanation…"></textarea>
+          <div class="counter"><span id="count">0</span>/250</div>
+        </div>
+
+        <div class="btns">
+          <button type="submit" class="primary" id="sendBtn">Send Request</button>
+          <button type="button" class="danger" id="clearBtn">Reset</button>
+        </div>
+
+        <div id="status" class="out"></div>
+        <div class="out">This page stores nothing on a server; it only triggers an internal email workflow.</div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const form = $('form'), childName = $('childName'), team = $('team'), size = $('size'),
+          reason = $('reason'), otherWrap = $('otherWrap'), otherText = $('otherText'),
+          statusBox = $('status'), sendBtn = $('sendBtn'), clearBtn = $('clearBtn'),
+          honeypot = $('website'), count = $('count');
+
+    function setStatus(msg, ok=false){ statusBox.textContent = msg; statusBox.className = 'out ' + (ok ? 'ok' : 'err'); }
+
+    reason.addEventListener('change', () => {
+      const isOther = reason.value === 'Other';
+      otherWrap.classList.toggle('hidden', !isOther);
+      if (!isOther) otherText.value = '';
+      count.textContent = otherText.value.length;
+    });
+    otherText.addEventListener('input', () => count.textContent = otherText.value.length);
+
+    clearBtn.addEventListener('click', () => {
+      form.reset(); otherWrap.classList.add('hidden'); count.textContent='0'; setStatus('');
+    });
+
+    function validate() {
+      if (honeypot.value) return "Spam detected.";
+      if (!childName.value.trim()) return "Please enter the child's name.";
+      if (!team.value.trim()) return "Please enter the team number or name (use 'Unknown' if not sure).";
+      if (!size.value) return "Please choose a T-shirt size.";
+      if (!reason.value) return "Please choose a reason.";
+      if (reason.value === 'Other' && !otherText.value.trim()) return "Please explain the 'Other' reason (max 250 chars).";
+      return '';
+    }
+
+    function eventProps() {
+      return {
+        child_name: childName.value.trim(),
+        team: team.value.trim(),
+        size: size.value,
+        reason: reason.value,
+        reason_other: reason.value === 'Other' ? otherText.value.trim() : '',
+        page_url: location.href
+      };
+    }
+
+    // Push a Klaviyo metric (no private keys; onsite JS beacon)
+    async function sendToKlaviyo() {
+      return new Promise((resolve, reject) => {
+        try {
+          if (!window._learnq) throw new Error('Klaviyo not loaded');
+          const props = eventProps();
+
+          // Track the custom event (Metric): "Tshirt Request"
+          window._learnq.push(['track', 'Tshirt Request', props]);
+
+          // Allow the beacon to queue; there’s no callback
+          setTimeout(resolve, 600);
+        } catch (e) { reject(e); }
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setStatus('');
+      const err = validate();
+      if (err) { setStatus(err, false); return; }
+
+      sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
+      try {
+        await sendToKlaviyo();
+        setStatus('Request submitted. Thank you! (We received your info.)', true);
+        // Optionally clear: form.reset(); otherWrap.classList.add('hidden'); count.textContent='0';
+      } catch (e) {
+        setStatus('Could not reach Klaviyo from this browser. Please try again later.', false);
+      } finally {
+        sendBtn.disabled = false; sendBtn.textContent = 'Send Request';
+      }
+    });
+  </script>
+</body>
+</html>
