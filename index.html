@@ -33,7 +33,7 @@
     }
     label { display: block; font-weight: 600; margin: 16px 0 6px; }
     .hint { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    input[type="text"], input[type="number"], textarea, select {
+    input[type="text"], textarea, select {
       width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
       background: #0b1220; color: var(--text); outline: none;
     }
@@ -44,7 +44,7 @@
       .row.three { grid-template-columns: 1fr 1fr 1fr; }
     }
     .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-    button, .linkbtn {
+    button {
       appearance: none; border: 1px solid var(--border); cursor: pointer;
       background: #0b1220; color: var(--text); padding: 10px 14px; border-radius: 10px;
       font-weight: 600;
@@ -81,9 +81,14 @@
 
       <div class="row two">
         <div>
-          <label for="age">Child’s age</label>
-          <span class="hint">Numbers only. Used to pick age-appropriate drills.</span>
-          <input id="age" type="number" inputmode="numeric" value="12" min="5" max="18" />
+          <label for="ageRange">Child’s age</label>
+          <span class="hint">Choose the age group.</span>
+          <select id="ageRange">
+            <option>7–8</option>
+            <option>9–10</option>
+            <option selected>11–12</option>
+            <option>13–15</option>
+          </select>
         </div>
         <div>
           <label for="exp">Volleyball experience</label>
@@ -99,36 +104,99 @@
 
       <div class="row two">
         <div>
-          <label for="role">Parent/coach comfort level</label>
-          <span class="hint">How much guidance do you want in plain English?</span>
-          <select id="role">
-            <option>Non-player parent: needs simple instructions</option>
-            <option>Some familiarity: can follow basic drills</option>
-            <option>Comfortable with drills and cues</option>
+          <label for="mediaType">Type of media instruction</label>
+          <span class="hint">What kind of resources do you want?</span>
+          <select id="mediaType">
+            <option selected>Videos</option>
+            <option>Guides</option>
+            <option>Tips & Tricks</option>
+            <option>All</option>
           </select>
         </div>
         <div>
-          <label for="session">Practice setting</label>
-          <span class="hint">Where and with whom will you practice?</span>
-          <select id="session">
-            <option>At home: parent + child; limited space</option>
-            <option>Gym or driveway: parent + child</option>
-            <option>Small group: 2–4 kids with one adult</option>
+          <label for="surface">Practice surface</label>
+          <span class="hint">Where will you practice?</span>
+          <select id="surface">
+            <option>Sand</option>
+            <option selected>Grass</option>
+            <option>Indoor</option>
           </select>
         </div>
       </div>
 
-      <label for="skills">Top skills to improve</label>
-      <span class="hint">Comma-separate. e.g., Serving, Passing, Setting, Hitting, Footwork, Toss, Overhand serve, Underhand serve</span>
-      <input id="skills" type="text" value="Serving, Passing" />
+      <label>Skills to work on (choose up to five — one per category)</label>
+      <span class="hint">Options come from your “VB Skills Choice Sheet.csv”. Pick “None” to skip a category.</span>
 
-      <label for="constraints">Equipment / constraints</label>
-      <span class="hint">What you have or don’t have. Space/time limits.</span>
-      <input id="constraints" type="text" value="One volleyball, no net, limited space, 20 minutes" />
+      <div class="row two">
+        <div>
+          <label for="skillAttacking">Attacking</label>
+          <select id="skillAttacking">
+            <option>None</option>
+            <option>Statue Spiking</option>
+            <option>Fountain Spiking</option>
+            <option>Arch Spiking</option>
+            <option>Approach (3 step)</option>
+            <option>Approach (4 step)</option>
+            <option>Blocking</option>
+          </select>
+        </div>
+        <div>
+          <label for="skillPassing">Passing</label>
+          <select id="skillPassing">
+            <option>None</option>
+            <option>Underarm Passing (Bumping)</option>
+            <option>Overhead Passing (Superman)</option>
+            <option>Setting for a spike</option>
+            <option>Back Setting</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="skillServing">Serving</label>
+          <select id="skillServing">
+            <option>None</option>
+            <option>Underhand Serving</option>
+            <option>Overhead Serving</option>
+            <option>Float Serves</option>
+            <option>Jump Serves</option>
+          </select>
+        </div>
+        <div>
+          <label for="skillStrategy">Strategy</label>
+          <select id="skillStrategy">
+            <option>None</option>
+            <option>Court Movement</option>
+            <option>Digging</option>
+            <option>Court Rotation (4 on 4)</option>
+            <option>Court Rotation (6 on 6)</option>
+            <option>Passing a ball out of the net</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="skillRules">Rules</label>
+          <select id="skillRules">
+            <option>None</option>
+            <option>Rally Scoring</option>
+            <option>Two Serves Max Rule</option>
+            <option>Touching the net</option>
+            <option>Ball hits the net</option>
+          </select>
+        </div>
+        <div>
+          <label for="constraints">Equipment / constraints</label>
+          <span class="hint">What you have or don’t have. Space/time limits.</span>
+          <input id="constraints" type="text" value="One volleyball, no net, limited space, 20 minutes" />
+        </div>
+      </div>
 
       <label for="situation">Extra context (optional)</label>
       <span class="hint">Anything special about your child (confidence, height, handedness, fear of ball, etc.).</span>
-      <textarea id="situation">Child is nervous and new to volleyball. Needs confidence-building drills that are safe and low-impact.</textarea>
+      <textarea id="situation" placeholder=""></textarea>
 
       <div class="btns">
         <button type="button" class="primary" id="genBtn">Generate Query</button>
@@ -151,32 +219,42 @@
   </div>
 
   <script>
-    // --- Elements
     const $ = (id) => document.getElementById(id);
-    const fields = ['age','exp','role','session','skills','constraints','situation'];
     const output = $('output');
 
-    // --- Build the ChatGPT query
+    function collectSkills() {
+      const ids = ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'];
+      const values = ids.map(id => $(id).value).filter(v => v && v !== 'None');
+      return values.join(', ');
+    }
+
     function buildQuery() {
-      const age = $('age').value.trim();
+      const ageRange = $('ageRange').value;
       const exp = $('exp').value;
-      const role = $('role').value;
-      const session = $('session').value;
-      const skills = $('skills').value.trim();
+      const mediaType = $('mediaType').value;
+      const surface = $('surface').value;
+      const skills = collectSkills();
       const constraints = $('constraints').value.trim();
       const extra = $('situation').value.trim();
 
       const lines = [
-        "You are an experienced youth volleyball coach and teacher.",
-        "Return: 1) Plain-English step-by-step instructions for a non-player parent to run a 20–30 minute session, 2) 4–6 curated links to short, reputable videos for the exact skills, 3) safety and confidence-building tips, 4) simple progress checks.",
+        // No preface per your request
+        `Goal: Provide ${mediaType.toLowerCase()}-first resources and step-by-step guidance for a parent who does not play volleyball.`,
         "",
-        `Child: age ${age}. Experience: ${exp}.`,
-        `Parent/coach: ${role}. Practice setting: ${session}.`,
-        `Target skills: ${skills}.`,
-        `Equipment/constraints: ${constraints}.`,
+        `Age group: ${ageRange}. Experience: ${exp}.`,
+        `Practice surface: ${surface}.`,
+        `Target skills (by category): ${skills || 'Parent did not select specific skills; suggest age-appropriate fundamentals.'}`,
+        `Equipment/constraints: ${constraints || 'Not specified.'}`,
         extra ? `Extra context: ${extra}.` : "",
         "",
-        "Format the answer with short headings and numbered steps. Keep jargon minimal and define any volleyball terms in-line."
+        mediaType === 'Videos'
+          ? "Return 4–6 short, reputable video links with a plain-English 20–30 minute practice plan."
+          : mediaType === 'Guides'
+          ? "Return concise, step-by-step written guides with simple diagrams/ascii where helpful, plus a 20–30 minute plan."
+          : mediaType === 'Tips & Tricks'
+          ? "Return practical tips, common mistakes, and quick fixes, organized by selected skills, with a 20–30 minute plan."
+          : "Return a mix of short videos + written guides + practical tips, with a 20–30 minute practice plan.",
+        "Use minimal jargon and define any volleyball terms inline."
       ].filter(Boolean);
 
       return lines.join("\n");
@@ -185,7 +263,7 @@
     function generate() {
       const q = buildQuery();
       output.textContent = q;
-      try { localStorage.setItem('chatQuery', q); } catch(_) {}
+      try { localStorage.setItem('chatQuery', q); } catch (_) {}
     }
 
     async function copyQuery() {
@@ -195,7 +273,6 @@
         await navigator.clipboard.writeText(q);
         toast("Query copied to clipboard.");
       } catch (e) {
-        // Fallback: select text for manual copy
         selectOutput();
         alert("Clipboard blocked. Press Ctrl+C / ⌘C to copy.");
       }
@@ -211,26 +288,28 @@
     function openChatGPT() {
       const q = (output.textContent || "").trim();
       if (!q) { alert("Generate the query first."); return; }
-      // Always copy so parents can paste immediately after ChatGPT opens
       navigator.clipboard?.writeText(q).catch(()=>{});
-      // Open ChatGPT in a new tab. (Direct prefill via URL is not guaranteed.)
       window.open("https://chat.openai.com/", "_blank", "noopener");
       toast("Opened ChatGPT in a new tab. The prompt is copied—just paste (Ctrl/⌘+V).");
     }
 
     function resetAll() {
-      $('age').value = 12;
+      $('ageRange').value = '11–12';
       $('exp').selectedIndex = 0;
-      $('role').selectedIndex = 0;
-      $('session').selectedIndex = 0;
-      $('skills').value = "Serving, Passing";
-      $('constraints').value = "One volleyball, no net, limited space, 20 minutes";
-      $('situation').value = "Child is nervous and new to volleyball. Needs confidence-building drills that are safe and low-impact.";
+      $('mediaType').value = 'Videos';
+      $('surface').value = 'Grass';
+      $('skillAttacking').value = 'None';
+      $('skillPassing').value = 'None';
+      $('skillServing').value = 'None';
+      $('skillStrategy').value = 'None';
+      $('skillRules').value = 'None';
+      $('constraints').value = 'One volleyball, no net, limited space, 20 minutes';
+      $('situation').value = '';
       output.textContent = "← Click “Generate Query” to build your AI prompt here.";
       try { localStorage.removeItem('chatQuery'); } catch(_) {}
     }
 
-    // --- Speech-to-text for the "extra context" field
+    // Speech-to-text (extra context)
     let sr;
     (function initSpeech() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -256,7 +335,6 @@
       sr.onend = () => { $('micBtn').disabled = false; $('micBtn').textContent = "🎤 Speak (fills extra context)"; };
     }
 
-    // --- Tiny toast
     function toast(msg) {
       const t = document.createElement('div');
       t.textContent = msg;
@@ -269,14 +347,12 @@
       setTimeout(()=>t.remove(), 2000);
     }
 
-    // --- Wire up buttons
     $('genBtn').addEventListener('click', generate);
     $('copyBtn').addEventListener('click', copyQuery);
     $('openBtn').addEventListener('click', openChatGPT);
     $('micBtn').addEventListener('click', startMic);
     $('clearBtn').addEventListener('click', resetAll);
 
-    // --- Restore previous query if available
     (function restore() {
       try {
         const q = localStorage.getItem('chatQuery');
