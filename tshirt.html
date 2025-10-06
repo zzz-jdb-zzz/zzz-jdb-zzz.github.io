@@ -21,24 +21,24 @@
     textarea{min-height:110px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr;gap:12px}
     @media (min-width:680px){.row.two{grid-template-columns:1fr 1fr}}
-    .btns{display:flex;gap:10px;margin-top:18px}
+    .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
     button{appearance:none;border:1px solid var(--border);cursor:pointer;background:#0b1220;color:var(--text);
       padding:10px 14px;border-radius:10px;font-weight:600}
     button.primary{background:var(--accent);border-color:transparent;color:#fff}
     button.danger{background:var(--danger);border-color:transparent;color:#fff}
     .out{margin-top:14px;white-space:pre-wrap;font-size:14px}
-    .ok{color:#86efac}.err{color:#fecaca}
+    .ok{color:#86efac}.err{color:#fecaca}.muted{color:var(--muted)}
     .hidden{display:none}
     .counter{font-size:12px;color:var(--muted);text-align:right}
     .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
   </style>
-  <!-- No Klaviyo onsite script here. We will send the event directly via the public track endpoint. -->
+  <!-- No Klaviyo onsite script on purpose -->
 </head>
 <body>
   <div class="wrap">
     <header style="margin-bottom:16px;">
       <h1>USYVL T-Shirt Request</h1>
-      <p class="lead">Fill this out to request/replace a league T-shirt. You’ll see a confirmation after sending.</p>
+      <p class="lead">Fill this out to request/replace a league T-shirt. We’ll email the coordinator automatically.</p>
     </header>
 
     <section class="card" aria-labelledby="form-title">
@@ -93,19 +93,20 @@
         <div class="btns">
           <button type="submit" class="primary" id="sendBtn">Send Request</button>
           <button type="button" class="danger" id="clearBtn">Reset</button>
+          <button type="button" id="pingBtn" title="Quick test that does not use the form.">Ping Klaviyo</button>
         </div>
 
         <div id="status" class="out"></div>
-        <div class="out">This page doesn’t store data on a server; it pings Klaviyo to trigger your internal email workflow.</div>
+        <div class="out muted">This page stores nothing on a server; it only fires a private coordinator email via a Klaviyo Flow.</div>
       </form>
     </section>
   </div>
 
   <script>
-    // ====== CONFIG ======
-    // Your Klaviyo PUBLIC Site ID (the same one you used: Ye2PfH)
+    // ================= CONFIG =================
+    // Your Klaviyo Public API Key / Site ID (from Settings → API Keys)
     const KLAVIYO_SITE_ID = "Ye2PfH";
-    // ====================
+    // ==========================================
 
     const $ = (id) => document.getElementById(id);
     const form = $('form'),
@@ -118,10 +119,15 @@
           statusBox = $('status'),
           sendBtn = $('sendBtn'),
           clearBtn = $('clearBtn'),
+          pingBtn = $('pingBtn'),
           honeypot = $('website'),
           count = $('count');
 
-    function setStatus(msg, ok=false){ statusBox.textContent = msg; statusBox.className = 'out ' + (ok ? 'ok' : 'err'); }
+    function setStatus(msg, cls='') {
+      statusBox.className = 'out ' + cls;
+      statusBox.textContent = msg;
+      console.log('[tshirt]', msg);
+    }
 
     reason.addEventListener('change', () => {
       const isOther = reason.value === 'Other';
@@ -145,18 +151,18 @@
       return '';
     }
 
-    function eventProps() {
-      return {
+    function eventProps(extra={}) {
+      return Object.assign({
         child_name: childName.value.trim(),
         team: team.value.trim(),
         size: size.value,
         reason: reason.value,
         reason_other: reason.value === 'Other' ? otherText.value.trim() : '',
         page_url: location.href
-      };
+      }, extra);
     }
 
-    // Minimal UUID for anonymous id
+    // Generate a simple anonymous id for the event
     function anonId() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
         const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
@@ -164,50 +170,91 @@
       });
     }
 
-    // Send event to Klaviyo without loading the onsite JS.
-    // Uses the public /api/track endpoint with base64 JSON.
-    function trackKlaviyo(eventName, props) {
-      return new Promise((resolve) => {
-        const payload = {
-          token: KLAVIYO_SITE_ID,          // public site ID
-          event: eventName,
-          properties: props,
-          customer_properties: { "$anonymous_id": anonId() },
-          time: Math.floor(Date.now()/1000)
-        };
-        const json = JSON.stringify(payload);
-        // Base64 encode
-        const b64 = btoa(unescape(encodeURIComponent(json)));
-        const url = "https://a.klaviyo.com/api/track?data=" + encodeURIComponent(b64);
+    // ---- Transport helpers (3 fallbacks) ----
+    function encodeTrackPayload(name, props) {
+      const payload = {
+        token: KLAVIYO_SITE_ID,
+        event: name,
+        properties: props,
+        customer_properties: { "$anonymous_id": anonId() },
+        time: Math.floor(Date.now()/1000)
+      };
+      const json = JSON.stringify(payload);
+      return btoa(unescape(encodeURIComponent(json)));
+    }
 
-        // Use an image beacon to avoid CORS headaches
+    // 1) sendBeacon (best when available)
+    function trackViaBeacon(name, props) {
+      try {
+        const data = encodeTrackPayload(name, props);
+        const url = "https://a.klaviyo.com/api/track?data=" + encodeURIComponent(data);
+        if (navigator.sendBeacon) {
+          const ok = navigator.sendBeacon(url);
+          return ok ? Promise.resolve(true) : Promise.reject('beacon-false');
+        }
+        return Promise.reject('beacon-missing');
+      } catch (e) { return Promise.reject(e); }
+    }
+
+    // 2) fetch POST (if CORS allowed by browser)
+    function trackViaFetch(name, props) {
+      // POST to the same GET endpoint is commonly blocked; we’ll still try
+      try {
+        const data = encodeTrackPayload(name, props);
+        return fetch("https://a.klaviyo.com/api/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "data=" + encodeURIComponent(data),
+          mode: "no-cors", // avoid CORS errors; we can’t read response, but request is sent
+          keepalive: true
+        }).then(() => true);
+      } catch (e) { return Promise.reject(e); }
+    }
+
+    // 3) image beacon (always works; no CORS)
+    function trackViaImage(name, props) {
+      return new Promise((resolve) => {
+        const data = encodeTrackPayload(name, props);
         const img = new Image();
         let done = false;
         const finish = () => { if (!done) { done = true; resolve(true); } };
         img.onload = finish;
-        img.onerror = finish;
-        img.src = url;
-
-        // Failsafe resolve after 800ms
-        setTimeout(finish, 800);
+        img.onerror = finish; // we can’t read errors cross-domain; assume send
+        img.src = "https://a.klaviyo.com/api/track?data=" + encodeURIComponent(data);
+        setTimeout(finish, 1000); // final fallback
       });
     }
+
+    async function trackKlaviyo(name, props) {
+      // Try beacon → fetch → image
+      try { await trackViaBeacon(name, props); return true; } catch {}
+      try { await trackViaFetch(name, props); return true; } catch {}
+      return trackViaImage(name, props);
+    }
+
+    // Debug “Ping Klaviyo” button (doesn’t require filling the form)
+    pingBtn.addEventListener('click', async () => {
+      setStatus('Pinging Klaviyo…', 'muted');
+      const ok = await trackKlaviyo('Tshirt Request', eventProps({ ping: true }));
+      setStatus(ok ? 'Ping sent. Check Klaviyo → Analytics → Metrics for “Tshirt Request”.' :
+                     'Ping failed to send.', ok ? 'ok' : 'err');
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       setStatus('');
       const err = validate();
-      if (err) { setStatus(err, false); return; }
+      if (err) { setStatus(err, 'err'); return; }
 
       sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
       try {
         const ok = await trackKlaviyo('Tshirt Request', eventProps());
-        if (!ok) throw new Error('Beacon failed');
-        setStatus('Request submitted. Thank you! (We received your info.)', true);
-        // Optionally clear after success:
+        if (!ok) throw new Error('send failed');
+        setStatus('Request submitted. Thank you! (Coordinator will receive an email.)', 'ok');
+        // Optionally clear:
         // form.reset(); otherWrap.classList.add('hidden'); if (count) count.textContent='0';
       } catch (e2) {
-        setStatus('Could not reach Klaviyo from this browser. Please try again later.', false);
+        setStatus('Could not reach Klaviyo from this browser. Try again or contact the coordinator.', 'err');
       } finally {
         sendBtn.disabled = false; sendBtn.textContent = 'Send Request';
       }
