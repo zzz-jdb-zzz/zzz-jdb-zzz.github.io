@@ -67,6 +67,14 @@
     .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
     .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
     .sr { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+    /* Constraints checkbox group */
+    .checks { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    @media (min-width: 720px) { .checks { grid-template-columns: 1fr 1fr; } }
+    .check { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: #0b1220; }
+    .check input { transform: scale(1.2); }
+    .other { margin-top: 8px; grid-column: 1 / -1; }
+    .other label { margin-top: 0; }
   </style>
 </head>
 <body>
@@ -157,10 +165,21 @@
           <label for="skillRules">Rules</label>
           <select id="skillRules"><option>None</option></select>
         </div>
+
+        <!-- NEW: Constraints as checkboxes + "Other" -->
         <div>
-          <label for="constraints">Equipment / constraints</label>
-          <span class="hint">What you have or don’t have. Space/time limits.</span>
-          <input id="constraints" type="text" value="One volleyball, no net, limited space, 20 minutes" />
+          <label>Equipment / constraints</label>
+          <span class="hint">Check all that apply; add anything else under “Other”.</span>
+          <div class="checks" id="constraintsGroup">
+            <label class="check"><input type="checkbox" id="c_noNet"><span>No net</span></label>
+            <label class="check"><input type="checkbox" id="c_oneBall"><span>One volleyball</span></label>
+            <label class="check"><input type="checkbox" id="c_onePlayer"><span>One player</span></label>
+            <label class="check"><input type="checkbox" id="c_twoPlayers"><span>Two players</span></label>
+            <div class="other">
+              <label for="c_other">Other</label>
+              <input id="c_other" type="text" placeholder="e.g., limited space, 20 minutes" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -183,7 +202,7 @@
         <span class="badge err" id="csvError" style="display:none;">CSV not found — using defaults</span>
         <br />
         <span class="badge" id="speechBadge" style="display:none;">Speech ready</span>
-        <span id="speechHint">Voice input works in Chrome/Edge on Android/Windows. If your browser blocks the mic, just type.</span>
+        <span id="speechHint">Voice input works in Chrome/Edge on Android/Windows. Click again to stop listening.</span>
       </div>
     </section>
 
@@ -197,7 +216,6 @@
     const output = $('output');
 
     // === CSV CONFIG ===
-    // Must match your uploaded path and name exactly:
     const CSV_PATH = 'data/VB Skills Choice Sheet.csv';
 
     // Default fallback options if CSV can't be loaded.
@@ -248,10 +266,8 @@
     }
 
     function parseCSV(text) {
-      // Normalize line endings
       const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
       if (!lines.length) return {};
-      // Decide delimiter: prefer TAB if present in header and commas not dominant
       const headerLine = lines[0];
       const useTab = (headerLine.includes('\t') && !headerLine.includes(','));
       const delim = useTab ? '\t' : ',';
@@ -269,8 +285,6 @@
           if (v) cols[h].add(v);
         }
       }
-
-      // Convert sets to arrays, keep insertion order
       const out = {};
       headers.forEach(h => out[h] = Array.from(cols[h]));
       return out;
@@ -278,12 +292,10 @@
 
     function populateSelect(selectId, options) {
       const sel = $(selectId);
-      // Clear all except first option if it's "None"
       sel.innerHTML = '';
       const none = document.createElement('option');
       none.textContent = 'None';
       sel.appendChild(none);
-
       (options || []).forEach(opt => {
         const o = document.createElement('option');
         o.textContent = opt;
@@ -298,13 +310,25 @@
       return values.join(', ');
     }
 
+    // NEW: gather constraints from checkboxes + "Other"
+    function getConstraintsText() {
+      const selections = [];
+      if ($('c_noNet').checked) selections.push('No net');
+      if ($('c_oneBall').checked) selections.push('One volleyball');
+      if ($('c_onePlayer').checked) selections.push('One player');
+      if ($('c_twoPlayers').checked) selections.push('Two players');
+      const other = $('c_other').value.trim();
+      if (other) selections.push(other);
+      return selections.join(', ');
+    }
+
     function buildQuery() {
       const ageRange = $('ageRange').value;
       const exp = $('exp').value;
       const mediaType = $('mediaType').value;
       const surface = $('surface').value;
       const skills = collectSkills();
-      const constraints = $('constraints').value.trim();
+      const constraintsText = getConstraintsText();
       const extra = $('situation').value.trim();
 
       const lines = [
@@ -313,7 +337,7 @@
         `Age group: ${ageRange}. Experience: ${exp}.`,
         `Practice surface: ${surface}.`,
         `Target skills (by category): ${skills || 'Parent did not select specific skills; suggest age-appropriate fundamentals.'}`,
-        `Equipment/constraints: ${constraints || 'Not specified.'}`,
+        `Equipment/constraints: ${constraintsText || 'Not specified.'}`,
         extra ? `Extra context: ${extra}.` : "",
         "",
         mediaType === 'Videos'
@@ -368,14 +392,16 @@
       $('mediaType').value = 'Videos';
       $('surface').value = 'Grass';
       ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'].forEach(id => { $(id).value = 'None'; });
-      $('constraints').value = 'One volleyball, no net, limited space, 20 minutes';
+      // Uncheck constraints + clear "Other"
+      ['c_noNet','c_oneBall','c_onePlayer','c_twoPlayers'].forEach(id => { $(id).checked = false; });
+      $('c_other').value = '';
       $('situation').value = '';
       output.textContent = "← Click “Generate Query” to build your AI prompt here.";
       try { localStorage.removeItem('chatQuery'); } catch(_) {}
     }
 
-    // Speech-to-text (extra context)
-    let sr;
+    // === Speech-to-text: toggleable mic ===
+    let sr, isListening = false;
     (function initSpeech() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SR) {
@@ -384,20 +410,33 @@
         sr.interimResults = false;
         sr.maxAlternatives = 1;
         $('speechBadge').style.display = 'inline-flex';
+
+        sr.onresult = (e) => {
+          const said = e.results[0][0].transcript || "";
+          const box = $('situation');
+          box.value = (box.value.trim() ? (box.value.trim() + " ") : "") + said;
+        };
+        sr.onerror = (e) => {
+          isListening = false;
+          $('micBtn').textContent = "🎤 Speak (fills extra context)";
+          alert("Mic error: " + (e.error || "unknown"));
+        };
+        sr.onend = () => {
+          isListening = false;
+          $('micBtn').textContent = "🎤 Speak (fills extra context)";
+        };
       }
     })();
 
-    function startMic() {
+    function toggleMic() {
       if (!sr) { alert("Your browser doesn’t support speech recognition. Try Chrome or Edge."); return; }
-      $('micBtn').disabled = true; $('micBtn').textContent = "🎤 Listening…";
-      sr.start();
-      sr.onresult = (e) => {
-        const said = e.results[0][0].transcript || "";
-        const box = $('situation');
-        box.value = (box.value.trim() ? (box.value.trim() + " ") : "") + said;
-      };
-      sr.onerror = (e) => { alert("Mic error: " + (e.error || "unknown")); };
-      sr.onend = () => { $('micBtn').disabled = false; $('micBtn').textContent = "🎤 Speak (fills extra context)"; };
+      if (!isListening) {
+        isListening = true;
+        $('micBtn').textContent = "⏹ Stop listening";
+        sr.start();
+      } else {
+        sr.stop(); // onend will flip UI back
+      }
     }
 
     function toast(msg) {
@@ -416,7 +455,7 @@
     $('genBtn').addEventListener('click', generate);
     $('copyBtn').addEventListener('click', copyQuery);
     $('openBtn').addEventListener('click', openChatGPT);
-    $('micBtn').addEventListener('click', startMic);
+    $('micBtn').addEventListener('click', toggleMic);
     $('clearBtn').addEventListener('click', resetAll);
 
     // Boot: load CSV then restore any saved query
