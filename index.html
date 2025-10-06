@@ -57,13 +57,6 @@
       margin-top: 18px; padding: 14px; background: #0a1221; border: 1px dashed #22304a;
       border-radius: 10px; white-space: pre-wrap;
     }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 8px;
-      border-radius: 999px; font-size: 12px; font-weight: 700;
-    }
-    .ok { background: #86efac; color: #052e12; }
-    .warn { background: #fef08a; color: #3a2a04; }
-    .err { background: #fecaca; color: #3f0404; }
     .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
     .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
     .sr { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
@@ -166,7 +159,7 @@
           <select id="skillRules"><option>None</option></select>
         </div>
 
-        <!-- NEW: Constraints as checkboxes + "Other" -->
+        <!-- Constraints as checkboxes + "Other" -->
         <div>
           <label>Equipment / constraints</label>
           <span class="hint">Check all that apply; add anything else under “Other”.</span>
@@ -196,12 +189,8 @@
       </div>
 
       <div class="out" id="output" aria-live="polite">← Click “Generate Query” to build your AI prompt here.</div>
+
       <div class="note">
-        <span class="badge ok" id="csvStatus" style="display:none;">Skills loaded from CSV</span>
-        <span class="badge warn" id="csvLoading">Loading skills…</span>
-        <span class="badge err" id="csvError" style="display:none;">CSV not found — using defaults</span>
-        <br />
-        <span class="badge" id="speechBadge" style="display:none;">Speech ready</span>
         <span id="speechHint">Voice input works in Chrome/Edge on Android/Windows. Click again to stop listening.</span>
       </div>
     </section>
@@ -252,16 +241,13 @@
 
         // Populate selects
         needed.forEach(h => populateSelect(HEADER_TO_SELECT[h], parsed[h]));
-        $('csvLoading').style.display = 'none';
-        $('csvStatus').style.display = 'inline-flex';
+        // (No badges/UI updates; silent success)
       } catch (e) {
-        // Fallback population
+        // Fallback population on error
         Object.entries(HEADER_TO_SELECT).forEach(([header, selId]) => {
           populateSelect(selId, FALLBACK[header] || []);
         });
-        $('csvLoading').style.display = 'none';
-        $('csvError').style.display = 'inline-flex';
-        console.warn('CSV load failed:', e);
+        console.warn('CSV load failed (using fallback):', e);
       }
     }
 
@@ -310,7 +296,6 @@
       return values.join(', ');
     }
 
-    // NEW: gather constraints from checkboxes + "Other"
     function getConstraintsText() {
       const selections = [];
       if ($('c_noNet').checked) selections.push('No net');
@@ -392,7 +377,6 @@
       $('mediaType').value = 'Videos';
       $('surface').value = 'Grass';
       ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'].forEach(id => { $(id).value = 'None'; });
-      // Uncheck constraints + clear "Other"
       ['c_noNet','c_oneBall','c_onePlayer','c_twoPlayers'].forEach(id => { $(id).checked = false; });
       $('c_other').value = '';
       $('situation').value = '';
@@ -409,7 +393,6 @@
         sr.lang = 'en-US';
         sr.interimResults = false;
         sr.maxAlternatives = 1;
-        $('speechBadge').style.display = 'inline-flex';
 
         sr.onresult = (e) => {
           const said = e.results[0][0].transcript || "";
@@ -429,7 +412,8 @@
     })();
 
     function toggleMic() {
-      if (!sr) { alert("Your browser doesn’t support speech recognition. Try Chrome or Edge."); return; }
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR || !sr) { alert("Your browser doesn’t support speech recognition. Try Chrome or Edge."); return; }
       if (!isListening) {
         isListening = true;
         $('micBtn').textContent = "⏹ Stop listening";
