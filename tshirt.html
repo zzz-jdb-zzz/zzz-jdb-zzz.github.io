@@ -32,18 +32,7 @@
     .counter{font-size:12px;color:var(--muted);text-align:right}
     .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
   </style>
-
-  <!-- ============ KLAVIYO.JS (ONSITE) ============ -->
-  <!-- Replace KLAVIYO_PUBLIC_SITE_ID with your real Public Site ID (looks like PK_xxxxxxxx) -->
-  <script>
-    (function(){
-      var _learnq = window._learnq || []; window._learnq = _learnq;
-      var e = document.createElement('script'); e.type='text/javascript'; e.async=true;
-      e.src='https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=Ye2PfH';
-      var s=document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(e,s);
-    })();
-  </script>
-  <!-- ============================================ -->
+  <!-- No Klaviyo onsite script here. We will send the event directly via the public track endpoint. -->
 </head>
 <body>
   <div class="wrap">
@@ -107,17 +96,30 @@
         </div>
 
         <div id="status" class="out"></div>
-        <div class="out">This page stores nothing on a server; it only triggers an internal email workflow.</div>
+        <div class="out">This page doesn’t store data on a server; it pings Klaviyo to trigger your internal email workflow.</div>
       </form>
     </section>
   </div>
 
   <script>
+    // ====== CONFIG ======
+    // Your Klaviyo PUBLIC Site ID (the same one you used: Ye2PfH)
+    const KLAVIYO_SITE_ID = "Ye2PfH";
+    // ====================
+
     const $ = (id) => document.getElementById(id);
-    const form = $('form'), childName = $('childName'), team = $('team'), size = $('size'),
-          reason = $('reason'), otherWrap = $('otherWrap'), otherText = $('otherText'),
-          statusBox = $('status'), sendBtn = $('sendBtn'), clearBtn = $('clearBtn'),
-          honeypot = $('website'), count = $('count');
+    const form = $('form'),
+          childName = $('childName'),
+          team = $('team'),
+          size = $('size'),
+          reason = $('reason'),
+          otherWrap = $('otherWrap'),
+          otherText = $('otherText'),
+          statusBox = $('status'),
+          sendBtn = $('sendBtn'),
+          clearBtn = $('clearBtn'),
+          honeypot = $('website'),
+          count = $('count');
 
     function setStatus(msg, ok=false){ statusBox.textContent = msg; statusBox.className = 'out ' + (ok ? 'ok' : 'err'); }
 
@@ -125,12 +127,12 @@
       const isOther = reason.value === 'Other';
       otherWrap.classList.toggle('hidden', !isOther);
       if (!isOther) otherText.value = '';
-      count.textContent = otherText.value.length;
+      if (count) count.textContent = otherText.value.length || 0;
     });
-    otherText.addEventListener('input', () => count.textContent = otherText.value.length);
+    otherText.addEventListener('input', () => { if (count) count.textContent = otherText.value.length; });
 
     clearBtn.addEventListener('click', () => {
-      form.reset(); otherWrap.classList.add('hidden'); count.textContent='0'; setStatus('');
+      form.reset(); otherWrap.classList.add('hidden'); if (count) count.textContent='0'; setStatus('');
     });
 
     function validate() {
@@ -154,19 +156,40 @@
       };
     }
 
-    // Push a Klaviyo metric (no private keys; onsite JS beacon)
-    async function sendToKlaviyo() {
-      return new Promise((resolve, reject) => {
-        try {
-          if (!window._learnq) throw new Error('Klaviyo not loaded');
-          const props = eventProps();
+    // Minimal UUID for anonymous id
+    function anonId() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+      });
+    }
 
-          // Track the custom event (Metric): "Tshirt Request"
-          window._learnq.push(['track', 'Tshirt Request', props]);
+    // Send event to Klaviyo without loading the onsite JS.
+    // Uses the public /api/track endpoint with base64 JSON.
+    function trackKlaviyo(eventName, props) {
+      return new Promise((resolve) => {
+        const payload = {
+          token: KLAVIYO_SITE_ID,          // public site ID
+          event: eventName,
+          properties: props,
+          customer_properties: { "$anonymous_id": anonId() },
+          time: Math.floor(Date.now()/1000)
+        };
+        const json = JSON.stringify(payload);
+        // Base64 encode
+        const b64 = btoa(unescape(encodeURIComponent(json)));
+        const url = "https://a.klaviyo.com/api/track?data=" + encodeURIComponent(b64);
 
-          // Allow the beacon to queue; there’s no callback
-          setTimeout(resolve, 600);
-        } catch (e) { reject(e); }
+        // Use an image beacon to avoid CORS headaches
+        const img = new Image();
+        let done = false;
+        const finish = () => { if (!done) { done = true; resolve(true); } };
+        img.onload = finish;
+        img.onerror = finish;
+        img.src = url;
+
+        // Failsafe resolve after 800ms
+        setTimeout(finish, 800);
       });
     }
 
@@ -178,10 +201,12 @@
 
       sendBtn.disabled = true; sendBtn.textContent = 'Sending…';
       try {
-        await sendToKlaviyo();
+        const ok = await trackKlaviyo('Tshirt Request', eventProps());
+        if (!ok) throw new Error('Beacon failed');
         setStatus('Request submitted. Thank you! (We received your info.)', true);
-        // Optionally clear: form.reset(); otherWrap.classList.add('hidden'); count.textContent='0';
-      } catch (e) {
+        // Optionally clear after success:
+        // form.reset(); otherWrap.classList.add('hidden'); if (count) count.textContent='0';
+      } catch (e2) {
         setStatus('Could not reach Klaviyo from this browser. Please try again later.', false);
       } finally {
         sendBtn.disabled = false; sendBtn.textContent = 'Send Request';
