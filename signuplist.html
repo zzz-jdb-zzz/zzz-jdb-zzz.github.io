@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Current Sign-Ups</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --border:#1f2937; }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);color:var(--text);
+         font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    h1{margin:0 0 10px;font-size:clamp(22px,4vw,34px)}
+    p.lead{margin:0 0 20px;color:var(--muted)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
+          border:1px solid var(--border);border-radius:14px;padding:10px}
+    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+    a.btn{display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px}
+    iframe{width:100%;border:1px solid #333;border-radius:12px;background:transparent}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>Current Sign-Ups</h1>
+      <a class="btn" href="./signuptoplay.html">← Back to Sign-Up Form</a>
+    </div>
+    <p class="lead">Names, ages, and photos of everyone who has picked time slots.</p>
+
+    <section class="card">
+      <!-- Your Gallery view -->
+      <iframe class="airtable-embed"
+        src="https://airtable.com/embed/appN2XRZiJcUHFNIF/shrB6NvufR8RO7Y6y?viewControls=on"
+        frameborder="0" width="100%" height="700"
+        style="background: transparent; border: 1px solid #ccc;">
+      </iframe>
+    </section>
+  </div>
+</body>
+</html>
