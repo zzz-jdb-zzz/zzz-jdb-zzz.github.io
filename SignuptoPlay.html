@@ -16,6 +16,7 @@
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
          border:1px solid var(--border);background:var(--card);color:var(--text);text-decoration:none;font-weight:600}
     .btn.primary{background:var(--accent);border-color:transparent;color:#fff}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
     .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--border);
           border-radius:16px;padding:18px}
     iframe{width:100%;min-height:760px;background:transparent;border:1px solid #ccc;border-radius:12px}
@@ -29,9 +30,14 @@
         <h1>Volleyball at Maramonte Park</h1>
         <p class="muted">Choose your 30-minute windows (Tuesdays, 4:00–6:30pm). Add player name, age, and an optional photo.</p>
       </div>
-      <a class="btn primary" href="https://airtable.com/appN2XRZiJcUHFNIF/pagJupQbsAPne7Szo/form" target="_blank" rel="noopener">
-        Open form in new tab
-      </a>
+
+      <!-- NEW: two buttons side-by-side -->
+      <div class="actions">
+        <a class="btn" href="./signuplist.html">View Current Sign-Ups</a>
+        <a class="btn primary" href="https://airtable.com/appN2XRZiJcUHFNIF/pagJupQbsAPne7Szo/form" target="_blank" rel="noopener">
+          Open form in new tab
+        </a>
+      </div>
     </header>
 
     <section class="card">
