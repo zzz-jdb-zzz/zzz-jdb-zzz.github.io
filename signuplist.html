@@ -5,46 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Current Sign-Ups</title>
   <style>
-    :root { --bg:#0f172a; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --border:#1f2937; --accent:#3b82f6; }
+    :root {
+      --bg:#0f172a;
+      --card:#111827;
+      --muted:#94a3b8;
+      --text:#e5e7eb;
+      --border:#1f2937;
+      --accent:#3b82f6;
+    }
     *{box-sizing:border-box}
     body{
       margin:0;
       background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     }
-    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
-    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
-    h1{margin:0;font-size:clamp(22px,4vw,34px);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .date-label{font-size:clamp(18px,3vw,26px);font-weight:500;color:var(--muted)}
-    p.lead{margin:0 0 20px;color:var(--muted)}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
-          border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:16px}
-    a.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{
+      margin:0;
+      font-size:clamp(24px,4vw,40px);
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    }
+    .date-label{color:#fff;font-weight:500;margin-left:10px}
+    a.btn{
+      display:inline-block;background:var(--accent);color:#fff;text-decoration:none;
+      padding:10px 14px;border-radius:10px;font-weight:600
+    }
+    p.lead{margin:8px 0 18px;color:var(--muted);font-size:clamp(14px,2.4vw,16px)}
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
+      border:1px solid var(--border);border-radius:14px;padding:10px
+    }
     iframe{width:100%;border:1px solid #333;border-radius:12px;background:transparent}
-    .badge{display:flex;flex-direction:column;align-items:center;justify-content:center;
-           padding:16px;border:2px solid var(--accent);border-radius:12px;margin-bottom:20px}
-    .badge h2{margin:0;font-size:clamp(20px,4vw,30px)}
-    .badge p{margin:6px 0 0;font-size:clamp(14px,2.5vw,18px);color:var(--muted)}
+
+    /* Fallback badge styling (in case badge file can't load) */
+    .fallback-badge{
+      border:1px solid #29405f;border-radius:14px;padding:18px 20px;margin:18px 0;
+      background:linear-gradient(180deg,rgba(59,130,246,0.06),rgba(59,130,246,0.03));
+      display:flex;align-items:center;gap:14px;
+    }
+    .fallback-badge strong{font-size:clamp(18px,3vw,28px)}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
       <h1>
-        Current Sign-Ups 
-        <span id="tuesdayDate" class="date-label"></span>
+        Current Sign-Ups
+        <span class="date-label">for <span id="tuesdayDate"></span></span>
       </h1>
-      <a class="btn" href="./signuptoplay.html">← Back to Sign-Up Form</a>
+      <a class="btn" href="./SignupToPlay.html">← Back to Sign-Up Form</a>
     </div>
+
     <p class="lead">Names, ages, and photos of everyone who has picked time slots.</p>
 
-    <!-- Status badge -->
-    <div id="statusBadge" class="badge">
-      <h2>⏳ Waiting for More Players</h2>
-      <p>Not confirmed yet, please check back later.</p>
+    <!-- Badge host: will be replaced with badge-on.html or badge-waiting.html -->
+    <div id="badgeHost" class="fallback-badge" role="status" aria-live="polite">
+      <span>⏳</span>
+      <div>
+        <strong>Waiting for More Players</strong>
+        <div style="color:#94a3b8">Not confirmed yet, please check back later.</div>
+      </div>
     </div>
 
+    <!-- Airtable Gallery embed -->
     <section class="card">
       <iframe class="airtable-embed"
         src="https://airtable.com/embed/appN2XRZiJcUHFNIF/shrB6NvufR8RO7Y6y?viewControls=on"
@@ -55,10 +80,9 @@
   </div>
 
   <script>
-    // Compute NEXT Tuesday in America/Los_Angeles
+    // ---- Show "Next Tuesday" (America/Los_Angeles) next to the title ----
     (function () {
       const tz = 'America/Los_Angeles';
-
       function dateInPT(d) {
         const parts = new Intl.DateTimeFormat('en-US', {
           timeZone: tz,
@@ -75,20 +99,37 @@
           Number(parts.second)
         );
       }
-
       const ptNow = dateInPT(new Date());
-      const TUE = 2; // 0=Sun, 1=Mon, 2=Tue...
+      const TUE = 2; // 0 Sun, 1 Mon, 2 Tue
       const dow = ptNow.getDay();
       let addDays = (TUE - dow + 7) % 7;
-      if (addDays === 0) addDays = 7; // if today is Tuesday, use NEXT Tuesday
-
+      if (addDays === 0) addDays = 7; // use NEXT Tuesday if today is Tue
       const nextTue = new Date(ptNow);
       nextTue.setDate(ptNow.getDate() + addDays);
+      document.getElementById('tuesdayDate').textContent =
+        new Intl.DateTimeFormat('en-US', {
+          timeZone: tz, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        }).format(nextTue);
+    })();
 
-      const dateLabel = document.getElementById('tuesdayDate');
-      dateLabel.textContent = new Intl.DateTimeFormat('en-US', {
-        timeZone: tz, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-      }).format(nextTue);
+    // ---- Load badge based on gamesOn.txt (contains "true" or "false") ----
+    (async function loadBadge(){
+      const host = document.getElementById('badgeHost');
+      try {
+        const res = await fetch('./gamesOn.txt', { cache: 'no-store' });
+        if (!res.ok) throw new Error('gamesOn.txt missing');
+        const raw = (await res.text()).trim().toLowerCase();
+        const on = raw === 'true';
+        const file = on ? './badge-on.html' : './badge-waiting.html';
+
+        const badgeRes = await fetch(file, { cache: 'no-store' });
+        if (!badgeRes.ok) throw new Error('badge file missing');
+        const html = await badgeRes.text();
+        host.outerHTML = html; // replace fallback with the real badge markup
+      } catch (e) {
+        console.warn('Badge load fallback:', e.message);
+        // Fallback already visible; no-op
+      }
     })();
   </script>
 </body>
