@@ -41,6 +41,7 @@
       <!-- Airtable embed -->
       <iframe
         class="airtable-embed"
+        title="USYVL Rec Sign-Up Form (Airtable)"
         src="https://airtable.com/embed/appN2XRZiJcUHFNIF/pagJupQbsAPne7Szo/form"
         frameborder="0"
         onmousewheel=""
@@ -48,33 +49,57 @@
         allowfullscreen>
       </iframe>
     </section>
+
+    <!-- Helper box with link to the live gallery -->
+    <div style="margin-top:12px;padding:14px;border:1px solid #1f2937;border-radius:12px;
+                background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));">
+      <p style="margin:0 0 10px;color:#94a3b8;">
+        After you submit the form above, click the button to see the live list of sign-ups.
+      </p>
+      <a href="./signuplist.html" class="btn-view"
+         style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;
+                font-weight:600;padding:10px 14px;border-radius:10px;">
+        View Current Sign-Ups →
+      </a>
+    </div>
   </div>
 
   <script>
-    // Compute NEXT Tuesday in America/Los_Angeles
+    // Robust "now in PT" using formatToParts (avoids rebuilding from a plain string)
     (function () {
       const tz = 'America/Los_Angeles';
-      const now = new Date();
 
-      // Helper that returns a Date in PT for the same instant
-      function inPT(d){ return new Date(new Intl.DateTimeFormat('en-US',{timeZone:tz}).format(d) + ' ' + d.toTimeString().split(' ')[0]); }
+      function dateInPT(d) {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: tz,
+          year: 'numeric', month: 'numeric', day: 'numeric',
+          hour: 'numeric', minute: 'numeric', second: 'numeric',
+          hour12: false
+        }).formatToParts(d).reduce((o, p) => (o[p.type] = p.value, o), {});
+        return new Date(
+          Number(parts.year),
+          Number(parts.month) - 1,
+          Number(parts.day),
+          Number(parts.hour),
+          Number(parts.minute),
+          Number(parts.second)
+        );
+      }
 
-      const ptNow = inPT(now);
-      const dow = ptNow.getDay();    // 0=Sun ... 2=Tue ... 6=Sat
-      const TUE = 2;
+      const ptNow = dateInPT(new Date());
+      const TUE = 2; // 0=Sun, 1=Mon, 2=Tue...
+      const dow = ptNow.getDay();
       let addDays = (TUE - dow + 7) % 7;
       if (addDays === 0) addDays = 7; // if today is Tuesday, use NEXT Tuesday
 
       const nextTue = new Date(ptNow);
       nextTue.setDate(ptNow.getDate() + addDays);
 
-      const fmt = new Intl.DateTimeFormat('en-US', {
-        timeZone: tz, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-      });
       const heading = document.getElementById('tuesdayHeading');
-      heading.textContent = fmt.format(nextTue); // e.g., "Tuesday, October 14, 2025"
+      heading.textContent = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+      }).format(nextTue);
 
-      // Optional: also reflect in the browser tab subtitle
       document.title = 'Volleyball at Maramonte Park — ' + heading.textContent;
     })();
   </script>
