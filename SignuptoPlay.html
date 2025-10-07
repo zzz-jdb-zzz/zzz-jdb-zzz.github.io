@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VB Rec – Sign Up to Play</title>
+  <style>
+    :root{
+      --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#94a3b8; --accent:#3b82f6; --border:#1f2937;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text); background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);
+    }
+    header{padding:16px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,.02)}
+    h1{margin:0; font-size:clamp(22px,3.5vw,30px)}
+    .wrap{max-width:1100px; margin:0 auto}
+    .hint{color:var(--muted); margin:6px 0 14px}
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
+      border:1px solid var(--border); border-radius:16px; overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,0,0,.35)
+    }
+    .frame{
+      width:100%;
+      height:calc(100dvh - 160px); /* full height minus header + margins */
+      border:0; background:transparent;
+    }
+    .bar{
+      display:flex; gap:10px; align-items:center; justify-content:space-between; padding:12px 14px;
+      border-bottom:1px solid var(--border); background:#0b1220
+    }
+    a.btn{
+      display:inline-block; padding:8px 12px; border:1px solid var(--border); border-radius:10px; color:var(--text); text-decoration:none;
+    }
+    a.btn.primary{background:var(--accent); border-color:transparent; color:#fff}
+    .footer-note{color:var(--muted); font-size:12px; padding:10px 14px; border-top:1px solid var(--border)}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Rec League Sign-Up</h1>
+      <p class="hint">Choose your 30-minute windows (Tuesdays, 4:00–6:30pm), add player name, age, and an optional photo.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="bar">
+        <span class="hint">If the form doesn’t load, open it directly:</span>
+        <a class="btn primary" href="https://airtable.com/appN2XRZiJcUHFNIF/pagJupQbsAPne7Szo/form" target="_blank" rel="noopener">Open form in new tab</a>
+      </div>
+
+      <!-- Your Airtable embed -->
+      <iframe
+        class="frame airtable-embed"
+        src="https://airtable.com/embed/appN2XRZiJcUHFNIF/pagJupQbsAPne7Szo/form"
+        frameborder="0"
+        width="100%"
+        height="100%"
+        style="background: transparent;">
+      </iframe>
+
+      <div class="footer-note">
+        Submissions save automatically to Airtable. No personal passwords are collected on this page.
+      </div>
+    </section>
+
+    <p class="hint" style="margin:14px 2px;">
+      <a class="btn" href="./">← Back to Home</a>
+      <a class="btn" href="./tshirt.html">T-Shirt Request</a>
+    </p>
+  </main>
+</body>
+</html>
