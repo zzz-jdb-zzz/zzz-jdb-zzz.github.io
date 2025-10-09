@@ -53,7 +53,7 @@
     <div class="topbar">
       <h1>
         Current Sign-Ups
-        <span class="date-label">for <span id="tuesdayDate"></span></span>
+        <span class="date-label">for <span id="mondayDate"></span></span>
       </h1>
       <a class="btn" href="signup-to-play.html">← Back to Sign-Up Form</a>
     </div>
@@ -80,7 +80,7 @@
   </div>
 
   <script>
-    // ---- Show "Next Tuesday" (America/Los_Angeles) next to the title ----
+    // ---- Show "Next Monday" (America/Los_Angeles) next to the title ----
     (function () {
       const tz = 'America/Los_Angeles';
       function dateInPT(d) {
@@ -100,16 +100,16 @@
         );
       }
       const ptNow = dateInPT(new Date());
-      const TUE = 2; // 0 Sun, 1 Mon, 2 Tue
+      const MON = 1; // 0 Sun, 1 Mon
       const dow = ptNow.getDay();
-      let addDays = (TUE - dow + 7) % 7;
-      if (addDays === 0) addDays = 7; // use NEXT Tuesday if today is Tue
-      const nextTue = new Date(ptNow);
-      nextTue.setDate(ptNow.getDate() + addDays);
-      document.getElementById('tuesdayDate').textContent =
+      let addDays = (MON - dow + 7) % 7;
+      if (addDays === 0) addDays = 7; // use NEXT Monday if today is Monday
+      const nextMon = new Date(ptNow);
+      nextMon.setDate(ptNow.getDate() + addDays);
+      document.getElementById('mondayDate').textContent =
         new Intl.DateTimeFormat('en-US', {
           timeZone: tz, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-        }).format(nextTue);
+        }).format(nextMon);
     })();
 
     // ---- Load badge based on gamesOn.txt (contains "true" or "false") ----
