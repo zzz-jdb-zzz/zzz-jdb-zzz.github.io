@@ -6,7 +6,8 @@
   <title>Volleyball at Maramonte Park</title>
   <style>
     :root{
-      --bg:#0f172a;--card:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--border:#1f2937;--accent:#3b82f6;--accent-2:#22c55e
+      --bg:#0f172a;--card:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--border:#1f2937;
+      --accent:#3b82f6;--accent-2:#22c55e
     }
     *{box-sizing:border-box}
     body{
@@ -16,30 +17,32 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif
     }
     .wrap{max-width:1100px;margin:0 auto;padding:24px}
-    header{
-      display:flex;flex-wrap:wrap;gap:12px;
-      align-items:center;justify-content:space-between;margin-bottom:16px
-    }
+    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px}
     h1{margin:0;font-size:clamp(24px,4vw,36px)}
     .muted{color:var(--muted)}
-    .tabs{display:flex;gap:10px;flex-wrap:wrap}
+    /* Bigger, bolder tabs */
+    .tabs{display:flex;gap:14px;flex-wrap:wrap}
     .tab{
       display:inline-flex;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:10px;border:1px solid var(--border);
-      background:var(--card);color:var(--text);text-decoration:none;font-weight:600
+      padding:14px 18px;border-radius:12px;border:1px solid var(--border);
+      background:var(--card);color:var(--text);text-decoration:none;font-weight:800;
+      font-size:18px; line-height:1;
     }
     .tab.primary{background:var(--accent);border-color:transparent;color:#fff}
     .card{
       background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));
       border:1px solid var(--border);border-radius:16px;padding:22px
     }
-    .subhead{margin:0 0 14px;font-size:clamp(16px,2.8vw,22px);font-weight:700}
-    .cta{
-      display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px
+    .subhead{
+      margin:0 0 14px;
+      font-size:clamp(18px,3.2vw,28px);
+      font-weight:900;
+      color:#fff;  /* bright like the main title */
     }
+    .cta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px}
     .cta-button{
       display:inline-block;padding:14px 18px;border-radius:12px;border:none;cursor:pointer;
-      background:var(--accent-2);color:#062e0f;font-weight:800;font-size:18px;text-decoration:none
+      background:var(--accent-2);color:#062e0f;font-weight:900;font-size:18px;text-decoration:none
     }
     .cta-hint{color:var(--muted);font-size:14px;text-align:center}
     .helper{
@@ -56,25 +59,21 @@
         <h1>Volleyball at Maramonte Park</h1>
         <p class="muted">Choose your 30-minute windows (Tuesdays, 4:00–6:30pm). Add player name, age, and an optional photo.</p>
       </div>
-
-      <!-- Tabs -->
       <nav class="tabs">
         <a class="tab" href="./signuplist.html">View Current Sign-Ups</a>
-        <a class="tab" href="https://zzz-jdb-zzz.github.io/text_subscribe.html">Get Texts</a>
+        <a class="tab" href="./subscribe.html">Get Texts</a>
       </nav>
     </header>
 
     <section class="card">
-      <!-- Dynamic heading: next Tuesday in PT -->
-      <h2 id="tuesdayHeading" class="subhead">for Tuesday, …</h2>
+      <!-- Now says “Sign up to play on …” -->
+      <h2 id="tuesdayHeading" class="subhead">Sign up to play on …</h2>
 
-      <!-- Replaces the blocked iframe with a big CTA button -->
       <div class="cta">
         <a
           class="cta-button"
           href="https://airtable.com/appN2XRZiJcUHFNIF/pagJupQbsAPne7Szo/form"
           target="_blank" rel="noopener noreferrer"
-          aria-label="Open the Airtable sign-up form in a new tab"
         >
           Open Sign-Up Form (New Tab)
         </a>
@@ -84,7 +83,6 @@
       </div>
     </section>
 
-    <!-- Optional helper with quick links -->
     <div class="helper">
       Tip: Want to see who’s in? Use the “View Current Sign-Ups” tab above.  
       Want text reminders? Tap “Get Texts”.
@@ -92,7 +90,7 @@
   </div>
 
   <script>
-    // Next Tuesday in America/Los_Angeles, shown as white text like the title
+    // Next Tuesday in America/Los_Angeles, shown as “Sign up to play on …”
     (function () {
       const tz = 'America/Los_Angeles';
       function dateInPT(d) {
@@ -112,9 +110,12 @@
       const fmt = new Intl.DateTimeFormat('en-US', {
         timeZone: tz, weekday:'long', month:'long', day:'numeric', year:'numeric'
       });
+      const dateStr = fmt.format(nextTue);
+
       const heading = document.getElementById('tuesdayHeading');
-      heading.textContent = 'for ' + fmt.format(nextTue); // e.g., “for Tuesday, October 14, 2025”
-      document.title = 'Volleyball at Maramonte Park — ' + fmt.format(nextTue);
+      heading.textContent = 'Sign up to play on ' + dateStr;
+
+      document.title = 'Volleyball at Maramonte Park — ' + dateStr;
     })();
   </script>
 </body>
