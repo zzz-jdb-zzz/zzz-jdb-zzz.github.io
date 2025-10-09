@@ -6,8 +6,10 @@
   <title>Volleyball at Maramonte Park</title>
   <style>
     :root{
-      --bg:#0f172a;--card:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--border:#1f2937;
-      --accent:#3b82f6;--accent-2:#22c55e
+      --bg:#0f172a; --card:#0b1220; --text:#e5e7eb; --muted:#94a3b8; --border:#1f2937;
+      --accent:#3b82f6; --accent-2:#22c55e;
+      /* NEW: soft, very light accent for the date */
+      --date-accent:#c7d2fe; /* try #a5b4fc or #d1d5db if you want a different tint */
     }
     *{box-sizing:border-box}
     body{
@@ -39,6 +41,9 @@
       font-weight:900;
       color:#fff;
     }
+    /* NEW: light accent for the date text */
+    .date-accent{ color: var(--date-accent); }
+
     .cta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px}
     .cta-button{
       display:inline-block;padding:14px 18px;border-radius:12px;border:none;cursor:pointer;
@@ -66,8 +71,10 @@
     </header>
 
     <section class="card">
-      <!-- “Sign up to play on …” will show next Monday in PT -->
-      <h2 id="playHeading" class="subhead">Sign up to play on …</h2>
+      <!-- “Sign up to play on …” shows next Monday in PT, with the date in a lighter accent -->
+      <h2 class="subhead">
+        Sign up to play on <span id="gameDate" class="date-accent">…</span>
+      </h2>
 
       <div class="cta">
         <a
@@ -89,7 +96,7 @@
   </div>
 
   <script>
-    // Next Monday in America/Los_Angeles, shown as “Sign up to play on …”
+    // Next Monday in America/Los_Angeles, shown inside #gameDate
     (function () {
       const tz = 'America/Los_Angeles';
 
@@ -117,9 +124,10 @@
       });
       const dateStr = fmt.format(nextMon);
 
-      const heading = document.getElementById('playHeading');
-      heading.textContent = 'Sign up to play on ' + dateStr;
+      // Put colored date into the span
+      document.getElementById('gameDate').textContent = dateStr;
 
+      // Also reflect in the tab title
       document.title = 'Volleyball at Maramonte Park — ' + dateStr;
     })();
   </script>
