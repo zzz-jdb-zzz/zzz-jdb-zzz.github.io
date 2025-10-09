@@ -8,8 +8,8 @@
     :root{
       --bg:#0f172a; --card:#0b1220; --text:#e5e7eb; --muted:#94a3b8; --border:#1f2937;
       --accent:#3b82f6; --accent-2:#22c55e;
-      /* NEW: soft, very light accent for the date */
-      --date-accent:#c7d2fe; /* try #a5b4fc or #d1d5db if you want a different tint */
+      /* soft, very light accent used on the pre-date text */
+      --date-accent:#c7d2fe;
     }
     *{box-sizing:border-box}
     body{
@@ -41,8 +41,9 @@
       font-weight:900;
       color:#fff;
     }
-    /* NEW: light accent for the date text */
-    .date-accent{ color: var(--date-accent); }
+    /* NEW: accent the pre-date text, and italicize the date */
+    .preface-accent{ color: var(--date-accent); }
+    .date-italic{ font-style: italic; }
 
     .cta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px}
     .cta-button{
@@ -71,9 +72,10 @@
     </header>
 
     <section class="card">
-      <!-- “Sign up to play on …” shows next Monday in PT, with the date in a lighter accent -->
+      <!-- Accent is on the pre-date text; the date itself is italic -->
       <h2 class="subhead">
-        Sign up to play on <span id="gameDate" class="date-accent">…</span>
+        <span class="preface-accent">Sign up to play on</span>
+        <span id="gameDate" class="date-italic">…</span>
       </h2>
 
       <div class="cta">
@@ -96,7 +98,7 @@
   </div>
 
   <script>
-    // Next Monday in America/Los_Angeles, shown inside #gameDate
+    // Next Monday in America/Los_Angeles -> inject into #gameDate (italic)
     (function () {
       const tz = 'America/Los_Angeles';
 
@@ -124,10 +126,7 @@
       });
       const dateStr = fmt.format(nextMon);
 
-      // Put colored date into the span
-      document.getElementById('gameDate').textContent = dateStr;
-
-      // Also reflect in the tab title
+      document.getElementById('gameDate').textContent = ' ' + dateStr;
       document.title = 'Volleyball at Maramonte Park — ' + dateStr;
     })();
   </script>
