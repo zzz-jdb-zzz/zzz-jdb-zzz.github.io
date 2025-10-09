@@ -1,1 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Volleyball Parent Coaching Helper</title>
+  <style>
+    :root {
+      --bg: #0f172a;       /* slate-900 */
+      --card: #111827;     /* gray-900 */
+      --muted: #94a3b8;    /* slate-400 */
+      --text: #e5e7eb;     /* gray-200 */
+      --accent: #22c55e;   /* green-500 */
+      --accent-2: #3b82f6; /* blue-500 */
+      --danger: #ef4444;   /* red-500 */
+      --border: #1f2937;   /* gray-800 */
+      --warn: #eab308;     /* yellow-500 */
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 800px at 20% -10%, #1e293b 0, #0f172a 60%);
+      color: var(--text);
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 4vw, 36px); }
+    p.lead { margin: 0 0 22px; color: var(--muted); line-height: 1.5; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    label { display: block; font-weight: 600; margin: 16px 0 6px; }
+    .hint { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], textarea, select {
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: #0b1220; color: var(--text); outline: none;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 720px) {
+      .row.two { grid-template-columns: 1fr 1fr; }
+      .row.three { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    button {
+      appearance: none; border: 1px solid var(--border); cursor: pointer;
+      background: #0b1220; color: var(--text); padding: 10px 14px; border-radius: 10px;
+      font-weight: 600;
+    }
+    button.primary { background: var(--accent-2); border-color: transparent; color: #fff; }
+    button.success { background: var(--accent); border-color: transparent; color: #002b08; }
+    button.danger { background: var(--danger); border-color: transparent; color: #fff; }
+    .out {
+      margin-top: 18px; padding: 14px; background: #0a1221; border: 1px dashed #22304a;
+      border-radius: 10px; white-space: pre-wrap;
+    }
+    .note { color: var(--muted); font-size: 12px; margin-top: 10px; }
+    .footer { margin-top: 26px; color: var(--muted); font-size: 12px; text-align: center; }
+    .sr { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+    /* Constraints checkbox group */
+    .checks { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    @media (min-width: 720px) { .checks { grid-template-columns: 1fr 1fr; } }
+    .check { display: flex; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: #0b1220; }
+    .check input { transform: scale(1.2); }
+    .other { margin-top: 8px; grid-column: 1 / -1; }
+    .other label { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header style="margin-bottom:16px;">
+      <h1>Volleyball Parent Coaching Helper</h1>
+      <p class="lead">
+        Fill this out and we’ll generate a polished question for ChatGPT (or any AI) that returns
+        the best videos and step-by-step guides for <strong>your</strong> situation.
+      </p>
+    </header>
+
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" class="sr">Parent Input</h2>
+
+      <div class="row two">
+        <div>
+          <label for="ageRange">Child’s age</label>
+          <span class="hint">Choose the age group.</span>
+          <select id="ageRange">
+            <option>7–8</option>
+            <option>9–10</option>
+            <option selected>11–12</option>
+            <option>13–15</option>
+          </select>
+        </div>
+        <div>
+          <label for="exp">Volleyball experience</label>
+          <span class="hint">Pick the closest match.</span>
+          <select id="exp">
+            <option>Beginner (never played)</option>
+            <option>Novice (some PE/recess experience)</option>
+            <option>Recreational (1 season of rec play)</option>
+            <option>Intermediate (club or 2+ seasons)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="mediaType">Type of media instruction</label>
+          <span class="hint">What kind of resources do you want?</span>
+          <select id="mediaType">
+            <option selected>Videos</option>
+            <option>Guides</option>
+            <option>Tips & Tricks</option>
+            <option>All</option>
+          </select>
+        </div>
+        <div>
+          <label for="surface">Practice surface</label>
+          <span class="hint">Where will you practice?</span>
+          <select id="surface">
+            <option>Sand</option>
+            <option selected>Grass</option>
+            <option>Indoor</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Skills to work on (choose up to five — one per category)</label>
+      <span class="hint">Loaded live from “VB Skills Choice Sheet.csv”. Pick “None” to skip a category.</span>
+
+      <div class="row two">
+        <div>
+          <label for="skillAttacking">Attacking</label>
+          <select id="skillAttacking"><option>None</option></select>
+        </div>
+        <div>
+          <label for="skillPassing">Passing</label>
+          <select id="skillPassing"><option>None</option></select>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="skillServing">Serving</label>
+          <select id="skillServing"><option>None</option></select>
+        </div>
+        <div>
+          <label for="skillStrategy">Strategy</label>
+          <select id="skillStrategy"><option>None</option></select>
+        </div>
+      </div>
+
+      <div class="row two">
+        <div>
+          <label for="skillRules">Rules</label>
+          <select id="skillRules"><option>None</option></select>
+        </div>
+
+        <!-- Constraints as checkboxes + "Other" -->
+        <div>
+          <label>Equipment / constraints</label>
+          <span class="hint">Check all that apply; add anything else under “Other”.</span>
+          <div class="checks" id="constraintsGroup">
+            <label class="check"><input type="checkbox" id="c_noNet"><span>No net</span></label>
+            <label class="check"><input type="checkbox" id="c_oneBall"><span>One volleyball</span></label>
+            <label class="check"><input type="checkbox" id="c_onePlayer"><span>One player</span></label>
+            <label class="check"><input type="checkbox" id="c_twoPlayers"><span>Two players</span></label>
+            <div class="other">
+              <label for="c_other">Other</label>
+              <input id="c_other" type="text" placeholder="e.g., limited space, 20 minutes" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <label for="situation">Extra context (optional)</label>
+      <span class="hint">Anything special about your child (confidence, height, handedness, fear of ball, etc.).</span>
+      <textarea id="situation" placeholder=""></textarea>
+
+      <div class="btns">
+        <button type="button" class="primary" id="genBtn">Generate Query</button>
+        <button type="button" id="copyBtn">Copy Query</button>
+        <button type="button" id="openBtn">Open ChatGPT</button>
+        <button type="button" id="micBtn">🎤 Speak (fills extra context)</button>
+        <button type="button" class="danger" id="clearBtn">Reset</button>
+      </div>
+
+      <div class="out" id="output" aria-live="polite">← Click “Generate Query” to build your AI prompt here.</div>
+
+      <div class="note">
+        <span id="speechHint">Voice input works in Chrome/Edge on Android/Windows. Click again to stop listening.</span>
+      </div>
+    </section>
+
+    <p class="footer">
+      This page stores nothing on a server. Your text stays in your browser until you close the tab.
+    </p>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const output = $('output');
+
+    // === CSV CONFIG ===
+    const CSV_PATH = 'data/VB Skills Choice Sheet.csv';
+
+    // Default fallback options if CSV can't be loaded.
+    const FALLBACK = {
+      Attacking: ["Statue Spiking","Fountain Spiking","Arch Spiking","Approach (3 step)","Approach (4 step)","Blocking"],
+      Passing: ["Underarm Passing (Bumping)","Overhead Passing (Superman)","Setting for a spike","Back Setting"],
+      Serving: ["Underhand Serving","Overhead Serving","Float Serves","Jump Serves"],
+      Strategy: ["Court Movement","Digging","Court Rotation (4 on 4)","Court Rotation (6 on 6)","Passing a ball out of the net"],
+      Rules: ["Rally Scoring","Two Serves Max Rule","Touching the net","Ball hits the net"]
+    };
+
+    // Map headers to select IDs
+    const HEADER_TO_SELECT = {
+      "Attacking": "skillAttacking",
+      "Passing": "skillPassing",
+      "Serving": "skillServing",
+      "Strategy": "skillStrategy",
+      "Rules": "skillRules"
+    };
+
+    // --- CSV loader + parser (handles comma OR tab) ---
+    async function loadCSVAndPopulate() {
+      try {
+        const url = encodeURI(CSV_PATH);
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP '+res.status);
+        const text = await res.text();
+        const parsed = parseCSV(text);
+
+        // Validate headers
+        const needed = Object.keys(HEADER_TO_SELECT);
+        const missing = needed.filter(h => !(h in parsed));
+        if (missing.length) throw new Error('Missing headers: ' + missing.join(', '));
+
+        // Populate selects
+        needed.forEach(h => populateSelect(HEADER_TO_SELECT[h], parsed[h]));
+        // (No badges/UI updates; silent success)
+      } catch (e) {
+        // Fallback population on error
+        Object.entries(HEADER_TO_SELECT).forEach(([header, selId]) => {
+          populateSelect(selId, FALLBACK[header] || []);
+        });
+        console.warn('CSV load failed (using fallback):', e);
+      }
+    }
+
+    function parseCSV(text) {
+      const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
+      if (!lines.length) return {};
+      const headerLine = lines[0];
+      const useTab = (headerLine.includes('\t') && !headerLine.includes(','));
+      const delim = useTab ? '\t' : ',';
+
+      const headers = headerLine.split(delim).map(s => s.trim());
+      const colCount = headers.length;
+      const cols = {};
+      headers.forEach(h => cols[h] = new Set());
+
+      for (let i = 1; i < lines.length; i++) {
+        const raw = lines[i].split(delim);
+        for (let c = 0; c < colCount; c++) {
+          const h = headers[c];
+          const v = (raw[c] ?? '').trim();
+          if (v) cols[h].add(v);
+        }
+      }
+      const out = {};
+      headers.forEach(h => out[h] = Array.from(cols[h]));
+      return out;
+    }
+
+    function populateSelect(selectId, options) {
+      const sel = $(selectId);
+      sel.innerHTML = '';
+      const none = document.createElement('option');
+      none.textContent = 'None';
+      sel.appendChild(none);
+      (options || []).forEach(opt => {
+        const o = document.createElement('option');
+        o.textContent = opt;
+        sel.appendChild(o);
+      });
+      sel.value = 'None';
+    }
+
+    function collectSkills() {
+      const ids = ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'];
+      const values = ids.map(id => $(id).value).filter(v => v && v !== 'None');
+      return values.join(', ');
+    }
+
+    function getConstraintsText() {
+      const selections = [];
+      if ($('c_noNet').checked) selections.push('No net');
+      if ($('c_oneBall').checked) selections.push('One volleyball');
+      if ($('c_onePlayer').checked) selections.push('One player');
+      if ($('c_twoPlayers').checked) selections.push('Two players');
+      const other = $('c_other').value.trim();
+      if (other) selections.push(other);
+      return selections.join(', ');
+    }
+
+    function buildQuery() {
+      const ageRange = $('ageRange').value;
+      const exp = $('exp').value;
+      const mediaType = $('mediaType').value;
+      const surface = $('surface').value;
+      const skills = collectSkills();
+      const constraintsText = getConstraintsText();
+      const extra = $('situation').value.trim();
+
+      const lines = [
+        `Goal: Provide ${mediaType.toLowerCase()}-first resources and step-by-step guidance for a parent who does not play volleyball.`,
+        "",
+        `Age group: ${ageRange}. Experience: ${exp}.`,
+        `Practice surface: ${surface}.`,
+        `Target skills (by category): ${skills || 'Parent did not select specific skills; suggest age-appropriate fundamentals.'}`,
+        `Equipment/constraints: ${constraintsText || 'Not specified.'}`,
+        extra ? `Extra context: ${extra}.` : "",
+        "",
+        mediaType === 'Videos'
+          ? "Return 4–6 short, reputable video links with a plain-English 20–30 minute practice plan."
+          : mediaType === 'Guides'
+          ? "Return concise, step-by-step written guides with simple diagrams/ascii where helpful, plus a 20–30 minute plan."
+          : mediaType === 'Tips & Tricks'
+          ? "Return practical tips, common mistakes, and quick fixes, organized by selected skills, with a 20–30 minute plan."
+          : "Return a mix of short videos + written guides + practical tips, with a 20–30 minute practice plan.",
+        "Use minimal jargon and define any volleyball terms inline."
+      ].filter(Boolean);
+
+      return lines.join("\n");
+    }
+
+    function generate() {
+      const q = buildQuery();
+      output.textContent = q;
+      try { localStorage.setItem('chatQuery', q); } catch (_) {}
+    }
+
+    async function copyQuery() {
+      const q = output.textContent.trim();
+      if (!q) { alert("Generate the query first."); return; }
+      try {
+        await navigator.clipboard.writeText(q);
+        toast("Query copied to clipboard.");
+      } catch (e) {
+        selectOutput();
+        alert("Clipboard blocked. Press Ctrl+C / ⌘C to copy.");
+      }
+    }
+
+    function selectOutput() {
+      const range = document.createRange();
+      range.selectNodeContents(output);
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+
+    function openChatGPT() {
+      const q = (output.textContent || "").trim();
+      if (!q) { alert("Generate the query first."); return; }
+      navigator.clipboard?.writeText(q).catch(()=>{});
+      window.open("https://chat.openai.com/", "_blank", "noopener");
+      toast("Opened ChatGPT in a new tab. The prompt is copied—just paste (Ctrl/⌘+V).");
+    }
+
+    function resetAll() {
+      $('ageRange').value = '11–12';
+      $('exp').selectedIndex = 0;
+      $('mediaType').value = 'Videos';
+      $('surface').value = 'Grass';
+      ['skillAttacking','skillPassing','skillServing','skillStrategy','skillRules'].forEach(id => { $(id).value = 'None'; });
+      ['c_noNet','c_oneBall','c_onePlayer','c_twoPlayers'].forEach(id => { $(id).checked = false; });
+      $('c_other').value = '';
+      $('situation').value = '';
+      output.textContent = "← Click “Generate Query” to build your AI prompt here.";
+      try { localStorage.removeItem('chatQuery'); } catch(_) {}
+    }
+
+    // === Speech-to-text: toggleable mic ===
+    let sr, isListening = false;
+    (function initSpeech() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SR) {
+        sr = new SR();
+        sr.lang = 'en-US';
+        sr.interimResults = false;
+        sr.maxAlternatives = 1;
+
+        sr.onresult = (e) => {
+          const said = e.results[0][0].transcript || "";
+          const box = $('situation');
+          box.value = (box.value.trim() ? (box.value.trim() + " ") : "") + said;
+        };
+        sr.onerror = (e) => {
+          isListening = false;
+          $('micBtn').textContent = "🎤 Speak (fills extra context)";
+          alert("Mic error: " + (e.error || "unknown"));
+        };
+        sr.onend = () => {
+          isListening = false;
+          $('micBtn').textContent = "🎤 Speak (fills extra context)";
+        };
+      }
+    })();
+
+    function toggleMic() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR || !sr) { alert("Your browser doesn’t support speech recognition. Try Chrome or Edge."); return; }
+      if (!isListening) {
+        isListening = true;
+        $('micBtn').textContent = "⏹ Stop listening";
+        sr.start();
+      } else {
+        sr.stop(); // onend will flip UI back
+      }
+    }
+
+    function toast(msg) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position:'fixed', left:'50%', bottom:'24px', transform:'translateX(-50%)',
+        background:'#111827', color:'#e5e7eb', padding:'10px 14px', borderRadius:'10px',
+        border:'1px solid #1f2937', boxShadow:'0 6px 20px rgba(0,0,0,0.35)', zIndex: 9999
+      });
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(), 2000);
+    }
+
+    // Wire up buttons
+    $('genBtn').addEventListener('click', generate);
+    $('copyBtn').addEventListener('click', copyQuery);
+    $('openBtn').addEventListener('click', openChatGPT);
+    $('micBtn').addEventListener('click', toggleMic);
+    $('clearBtn').addEventListener('click', resetAll);
+
+    // Boot: load CSV then restore any saved query
+    (async function boot() {
+      await loadCSVAndPopulate();
+      try {
+        const q = localStorage.getItem('chatQuery');
+        if (q) output.textContent = q;
+      } catch(_) {}
+    })();
+  </script>
+</body>
+</html>
 
