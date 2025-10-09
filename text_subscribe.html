@@ -17,17 +17,20 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
     }
     .form-container h2 {
-      text-align: center;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
-    .form-container label {
-      display: block;
-      margin-bottom: 8px;
+    .radio-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
     }
-    .form-container input[type="radio"] {
-      margin-right: 8px;
+    .radio-group label {
+      font-size: 16px;
+      cursor: pointer;
     }
     .form-container input[type="tel"],
     .form-container button {
@@ -51,6 +54,7 @@
       font-size: 12px;
       color: #555;
       margin-top: 10px;
+      text-align: left;
     }
   </style>
 </head>
@@ -63,16 +67,18 @@
       <input type="hidden" name="g" value="VBEnid">
       <input type="hidden" name="a" value="Ye2PfH">
 
-      <!-- Radio buttons -->
-      <label>
-        <input type="radio" name="Select Groups 1" value="USYVL"> USYVL
-      </label>
-      <label>
-        <input type="radio" name="Select Groups 1" value="Open Rec"> Open Rec
-      </label>
-      <label>
-        <input type="radio" name="Select Groups 1" value="Both" checked="checked"> Both
-      </label>
+      <!-- Radio buttons (horizontal + centered) -->
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="Select Groups 1" value="USYVL"> USYVL
+        </label>
+        <label>
+          <input type="radio" name="Select Groups 1" value="Open Rec"> Open Rec
+        </label>
+        <label>
+          <input type="radio" name="Select Groups 1" value="Both" checked="checked"> Both
+        </label>
+      </div>
 
       <!-- Phone number field -->
       <label for="phone">Phone Number*</label>
