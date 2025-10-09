@@ -37,7 +37,7 @@
       margin:0 0 14px;
       font-size:clamp(18px,3.2vw,28px);
       font-weight:900;
-      color:#fff;  /* bright like the main title */
+      color:#fff;
     }
     .cta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px}
     .cta-button{
@@ -57,7 +57,7 @@
     <header>
       <div>
         <h1>Volleyball at Maramonte Park</h1>
-        <p class="muted">Choose your 30-minute windows (Tuesdays, 4:00–6:30pm). Add player name, age, and an optional photo.</p>
+        <p class="muted">Choose your 30-minute windows (Mondays, 4:00–6:30pm). Add player name, age, and an optional photo.</p>
       </div>
       <nav class="tabs">
         <a class="tab" href="./signuplist.html">View Current Sign-Ups</a>
@@ -66,8 +66,8 @@
     </header>
 
     <section class="card">
-      <!-- Now says “Sign up to play on …” -->
-      <h2 id="tuesdayHeading" class="subhead">Sign up to play on …</h2>
+      <!-- “Sign up to play on …” will show next Monday in PT -->
+      <h2 id="playHeading" class="subhead">Sign up to play on …</h2>
 
       <div class="cta">
         <a
@@ -84,35 +84,41 @@
     </section>
 
     <div class="helper">
-      Tip: Want to see who’s in? Use the “View Current Sign-Ups” tab above.  
+      Tip: Want to see who’s in? Use the “View Current Sign-Ups” tab above.
       Want text reminders? Tap “Get Texts”.
     </div>
   </div>
 
   <script>
-    // Next Tuesday in America/Los_Angeles, shown as “Sign up to play on …”
+    // Next Monday in America/Los_Angeles, shown as “Sign up to play on …”
     (function () {
       const tz = 'America/Los_Angeles';
+
       function dateInPT(d) {
         const parts = new Intl.DateTimeFormat('en-US', {
-          timeZone: tz, year:'numeric', month:'numeric', day:'numeric',
-          hour:'numeric', minute:'numeric', second:'numeric', hour12:false
+          timeZone: tz,
+          year:'numeric', month:'numeric', day:'numeric',
+          hour:'numeric', minute:'numeric', second:'numeric',
+          hour12:false
         }).formatToParts(d).reduce((o,p)=> (o[p.type]=p.value,o),{});
         return new Date(+parts.year, +parts.month-1, +parts.day, +parts.hour, +parts.minute, +parts.second);
       }
+
       const ptNow = dateInPT(new Date());
-      const TUE = 2; // 0=Sun, 1=Mon, 2=Tue
+      const MON = 1; // 0=Sun, 1=Mon
       const dow = ptNow.getDay();
-      let addDays = (TUE - dow + 7) % 7;
-      if (addDays === 0) addDays = 7; // if today is Tue, use NEXT Tue
-      const nextTue = new Date(ptNow); nextTue.setDate(ptNow.getDate() + addDays);
+      let addDays = (MON - dow + 7) % 7;
+      if (addDays === 0) addDays = 7; // if today is Monday, use NEXT Monday
+
+      const nextMon = new Date(ptNow);
+      nextMon.setDate(ptNow.getDate() + addDays);
 
       const fmt = new Intl.DateTimeFormat('en-US', {
         timeZone: tz, weekday:'long', month:'long', day:'numeric', year:'numeric'
       });
-      const dateStr = fmt.format(nextTue);
+      const dateStr = fmt.format(nextMon);
 
-      const heading = document.getElementById('tuesdayHeading');
+      const heading = document.getElementById('playHeading');
       heading.textContent = 'Sign up to play on ' + dateStr;
 
       document.title = 'Volleyball at Maramonte Park — ' + dateStr;
