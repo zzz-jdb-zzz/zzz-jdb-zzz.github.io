@@ -1,233 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Cat Feeding Times</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            margin: 0;
-            padding: 16px;
-            background: #f5f5f5;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 16px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            margin-top: 20px;
-        }
-        thead {
-            background: #333;
-            color: white;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 12px;
-            text-align: center;
-        }
-        tr:nth-child(even) {
-            background: #fafafa;
-        }
-        .highlight-next {
-            background-color: #fffacd;
-        }
-        .current-time-row td {
-            font-weight: bold;
-            background-color: #fffacd;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Cat Feeding Times</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 16px;
+    background: #f5f5f5;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 12px;
+}
+#tzInfo {
+    text-align: center;
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    margin-top: 20px;
+}
+thead {
+    background: #333;
+    color: white;
+}
+th, td {
+    border: 1px solid #ccc;
+    padding: 12px;
+    text-align: center;
+}
+tr:nth-child(even) {
+    background: #fafafa;
+}
+.current-time-row td {
+    font-weight: bold;
+    background-color: #fffacd;
+}
+#weatherBox, #sunsetBox {
+    margin-top: 18px;
+    padding: 14px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1.1em;
+}
+</style>
 </head>
+
 <body>
 
 <h1>Cat Feeding Times</h1>
+<div id="tzInfo"></div>
 
 <table>
-    <thead>
-    <tr>
-        <th>CA time</th>
-        <th>Ital time</th>
-        <th>Next Feeding</th>
-    </tr>
-    </thead>
-    <tbody id="timesBody"></tbody>
+<thead>
+<tr>
+    <th>CA time</th>
+    <th>Italy time</th>
+    <th>Next Feeding</th>
+</tr>
+</thead>
+<tbody id="timesBody"></tbody>
 </table>
 
+<div id="weatherBox">Loading Albenga weather…</div>
+<div id="sunsetBox">Loading sunset time…</div>
+
 <script>
-//
-//  EMBEDDED CAT FEEDING TIMES (CA TIME)
-//
-const embeddedTimes = [
-  "5:00 pm",
-  "10:00 pm",
-  "2:30 am",
-  "7:00 am",
-  "12:00 pm"
+// ============================================================
+// EMBEDDED FEEDING TIMES (DEFINED IN CA TIME)
+// ============================================================
+const FEEDING_TIMES_CA = [
+    "5:00 pm",
+    "10:00 pm",
+    "2:30 am",
+    "7:00 am",
+    "12:00 pm"
 ];
 
-let timeEntries = [];
-let clockTimeCell = null;
-const tbody = document.getElementById("timesBody");
+// ============================================================
+// TIME ZONES
+// ============================================================
+const TZ_CA = "America/Los_Angeles";
+const TZ_IT = "Europe/Rome";
+const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-window.addEventListener("load", () => {
-    loadTimesFromArray(embeddedTimes);
-    setInterval(updateAll, 1000);
-});
+document.getElementById("tzInfo").textContent =
+    `Detected device time zone: ${LOCAL_TZ}`;
 
-//
-// Parse and convert times
-//
-function loadTimesFromArray(lines) {
-    timeEntries = [];
-    tbody.innerHTML = "";
-
-    for (const raw of lines) {
-        const line = raw.trim();
-        if (!line) continue;
-
-        const parsed = parseTimeLine(line);
-        if (!parsed) continue;
-
-        let hour = parsed.hour;
-        let minute = parsed.minute;
-
-        // Convert CA → Italy (+9 hours)
-        let totalMin = hour * 60 + minute + 9 * 60;
-        totalMin %= (24 * 60);
-
-        const italH = Math.floor(totalMin / 60);
-        const italM = totalMin % 60;
-
-        timeEntries.push({
-            caLabel: formatAmPm(hour, minute),
-            italLabel: formatAmPm(italH, italM),
-            italH,
-            italM,
-            row: null,
-            italCell: null,
-            nextCell: null
-        });
-    }
-
-    // sort by Italian time
-    timeEntries.sort((a, b) =>
-        a.italH * 60 + a.italM - (b.italH * 60 + b.italM)
+// ============================================================
+// UTILITIES
+// ============================================================
+function zonedNow(tz) {
+    return new Date(
+        new Intl.DateTimeFormat("en-US", {
+            timeZone: tz,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+        }).format(new Date())
     );
-
-    // build rows
-    for (const e of timeEntries) {
-        const tr = document.createElement("tr");
-
-        const td1 = document.createElement("td");
-        td1.textContent = e.caLabel;
-
-        const td2 = document.createElement("td");
-        td2.textContent = e.italLabel;
-
-        const td3 = document.createElement("td");
-
-        tr.append(td1, td2, td3);
-        tbody.appendChild(tr);
-
-        e.row = tr;
-        e.italCell = td2;
-        e.nextCell = td3;
-    }
-
-    addClockRow();
-    updateAll();
 }
 
-//
-// Time parsing & formatting
-//
-function parseTimeLine(line) {
-    const m = line.match(/^(\d{1,2}):(\d{2})\s*([aApP][mM])$/);
+function formatZonedTime(tz, withSeconds = false) {
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: tz,
+        hour: "numeric",
+        minute: "2-digit",
+        second: withSeconds ? "2-digit" : undefined,
+        hour12: true
+    }).format(new Date());
+}
+
+function parseCaTime(line) {
+    const m = line.match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
     if (!m) return null;
 
-    let hour = parseInt(m[1], 10);
-    const minute = parseInt(m[2], 10);
-    const ampm = m[3].toUpperCase();
+    let h = parseInt(m[1], 10);
+    const min = parseInt(m[2], 10);
+    const ap = m[3].toUpperCase();
 
-    if (ampm === "AM") {
-        if (hour === 12) hour = 0;
+    if (ap === "AM") {
+        if (h === 12) h = 0;
     } else {
-        if (hour !== 12) hour += 12;
+        if (h !== 12) h += 12;
     }
-
-    return { hour, minute };
+    return { h, min };
 }
 
 function formatAmPm(h24, m) {
     let h = h24 % 12;
     if (h === 0) h = 12;
     const mm = m.toString().padStart(2, "0");
-    const ampm = h24 >= 12 ? "PM" : "AM";
-    return `${h}:${mm} ${ampm}`;
+    const ap = h24 >= 12 ? "PM" : "AM";
+    return `${h}:${mm} ${ap}`;
 }
 
-function timeNowLabel() {
-    const d = new Date();
-    let h = d.getHours();
-    let m = d.getMinutes();
-    let s = d.getSeconds();
+// ============================================================
+// BUILD TABLE
+// ============================================================
+let entries = [];
+let caClockCell, itClockCell;
+const tbody = document.getElementById("timesBody");
 
-    let h12 = h % 12;
-    if (h12 === 0) h12 = 12;
-    const ampm = h >= 12 ? "PM" : "AM";
+function buildTable() {
+    tbody.innerHTML = "";
+    entries = [];
 
-    return `${h12}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")} ${ampm}`;
-}
+    for (const t of FEEDING_TIMES_CA) {
+        const p = parseCaTime(t);
+        if (!p) continue;
 
-//
-// Clock row
-//
-function addClockRow() {
-    const tr = document.createElement("tr");
-    tr.classList.add("current-time-row");
+        // Convert CA feeding time to Italy time correctly (DST aware)
+        const nowCA = zonedNow(TZ_CA);
+        nowCA.setHours(p.h, p.min, 0, 0);
 
-    const td1 = document.createElement("td");
-    const td2 = document.createElement("td");
-    const td3 = document.createElement("td");
+        const itLabel = new Intl.DateTimeFormat("en-US", {
+            timeZone: TZ_IT,
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        }).format(nowCA);
 
-    tr.append(td1, td2, td3);
-    tbody.appendChild(tr);
+        const itDate = zonedNow(TZ_IT);
+        itDate.setHours(
+            new Intl.DateTimeFormat("en-US", { timeZone: TZ_IT, hour: "numeric", hour12: false }).format(nowCA),
+            new Intl.DateTimeFormat("en-US", { timeZone: TZ_IT, minute: "numeric" }).format(nowCA),
+            0, 0
+        );
 
-    clockTimeCell = td2;
-}
-
-//
-// Update highlight & countdown
-//
-function updateAll() {
-    const now = new Date();
-    const nowTotal = now.getHours() * 60 + now.getMinutes();
-
-    // update clock
-    if (clockTimeCell)
-        clockTimeCell.textContent = timeNowLabel();
-
-    // clear
-    for (const e of timeEntries) {
-        e.italCell.style.backgroundColor = "white";
-        e.nextCell.textContent = "";
+        entries.push({
+            caLabel: t.toUpperCase(),
+            itLabel,
+            itH: itDate.getHours(),
+            itM: itDate.getMinutes(),
+            cell: null,
+            nextCell: null
+        });
     }
 
-    // find next feeding (wrap-around fix using LET diff)
+    entries.sort((a, b) =>
+        (a.itH * 60 + a.itM) - (b.itH * 60 + b.itM)
+    );
+
+    for (const e of entries) {
+        const tr = document.createElement("tr");
+        const td1 = document.createElement("td");
+        const td2 = document.createElement("td");
+        const td3 = document.createElement("td");
+
+        td1.textContent = e.caLabel;
+        td2.textContent = e.itLabel;
+
+        tr.append(td1, td2, td3);
+        tbody.appendChild(tr);
+
+        e.cell = td2;
+        e.nextCell = td3;
+    }
+
+    addClockRow();
+}
+
+function addClockRow() {
+    const tr = document.createElement("tr");
+    tr.className = "current-time-row";
+
+    const tdCA = document.createElement("td");
+    const tdIT = document.createElement("td");
+    const tdEmpty = document.createElement("td");
+
+    tr.append(tdCA, tdIT, tdEmpty);
+    tbody.appendChild(tr);
+
+    caClockCell = tdCA;
+    itClockCell = tdIT;
+}
+
+// ============================================================
+// UPDATE LOOP
+// ============================================================
+function updateAll() {
+    const nowIT = zonedNow(TZ_IT);
+    const nowMin = nowIT.getHours() * 60 + nowIT.getMinutes();
+
+    caClockCell.textContent = formatZonedTime(TZ_CA, true);
+    itClockCell.textContent = formatZonedTime(TZ_IT, true);
+
     let best = null;
     let bestDiff = Infinity;
 
-    for (const e of timeEntries) {
-        const total = e.italH * 60 + e.italM;
-        let diff = total - nowTotal;  // <-- must be LET
+    for (const e of entries) {
+        e.cell.style.backgroundColor = "white";
+        e.nextCell.textContent = "";
 
-        if (diff < 0) {
-            diff += 24 * 60;
-        }
+        let diff = (e.itH * 60 + e.itM) - nowMin;
+        if (diff < 0) diff += 1440;
 
         if (diff < bestDiff) {
             bestDiff = diff;
@@ -236,20 +255,58 @@ function updateAll() {
     }
 
     if (best) {
-        if (bestDiff > 0) {
-            let hrs = Math.floor(bestDiff / 60);
-            let mins = bestDiff % 60;
+        let hrs = Math.floor(bestDiff / 60);
+        let mins = bestDiff % 60;
 
-            if (hrs > 0) {
-                best.nextCell.textContent = `${hrs} hr ${mins} min`;
-            } else {
-                best.nextCell.textContent = `${mins} min`;
-            }
-        }
+        best.nextCell.textContent =
+            hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
 
-        best.italCell.style.backgroundColor = "#fffacd";
+        best.cell.style.backgroundColor = "#fffacd";
     }
 }
+
+// ============================================================
+// WEATHER & SUNSET (ITALY LOCAL TIME)
+// ============================================================
+function fetchWeather() {
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=44.049&longitude=8.215&current_weather=true")
+        .then(r => r.json())
+        .then(d => {
+            if (d.current_weather) {
+                document.getElementById("weatherBox").textContent =
+                    `Albenga Weather: ${d.current_weather.temperature}°C, Wind ${d.current_weather.windspeed} km/h`;
+            }
+        })
+        .catch(() => document.getElementById("weatherBox").textContent = "Weather unavailable");
+}
+
+function fetchSunset() {
+    fetch("https://api.sunrise-sunset.org/json?lat=44.049&lng=8.215&formatted=0")
+        .then(r => r.json())
+        .then(d => {
+            if (d.status === "OK") {
+                const sunsetUTC = new Date(d.results.sunset);
+                const sunsetIT = new Intl.DateTimeFormat("en-US", {
+                    timeZone: TZ_IT,
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true
+                }).format(sunsetUTC);
+
+                document.getElementById("sunsetBox").textContent =
+                    `Sunset in Albenga: ${sunsetIT}`;
+            }
+        })
+        .catch(() => document.getElementById("sunsetBox").textContent = "Sunset unavailable");
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildTable();
+fetchWeather();
+fetchSunset();
+setInterval(updateAll, 1000);
 </script>
 
 </body>
