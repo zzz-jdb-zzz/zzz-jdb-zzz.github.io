@@ -29,7 +29,6 @@
     button.danger{background:var(--danger);border-color:transparent;color:#fff}
     .counter{font-size:12px;color:var(--muted);text-align:right}
     .hidden{display:none}
-    .ok{color:#86efac}.err{color:#fecaca}
     .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
   </style>
 </head>
@@ -37,16 +36,22 @@
   <div class="wrap">
     <header style="margin-bottom:16px;">
       <h1>USYVL T-Shirt Request</h1>
-      <p class="lead">Fill this out to request/replace a league T-shirt. Submissions are stored in Formspree.</p>
+      <p class="lead">Fill this out to request or replace a league T-shirt.</p>
     </header>
 
     <section class="card" aria-labelledby="form-title">
       <h2 id="form-title" class="sr">T-Shirt Request Form</h2>
 
-      <!-- REPLACE the action URL with your Formspree endpoint -->
       <form id="form" action="https://formspree.io/f/xwprqdkb" method="POST">
-        <!-- Honeypot (Formspree ignores bots here) -->
         <input class="sr" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+
+        <label for="location">League Location *</label>
+        <span class="hint">Select the city where your child plays.</span>
+        <select id="location" name="location" required>
+          <option value="">Select a city...</option>
+          <option value="Arroyo Grande">Arroyo Grande (AG)</option>
+          <option value="Santa Maria">Santa Maria (SM)</option>
+        </select>
 
         <div class="row two">
           <div>
@@ -64,7 +69,7 @@
         <div class="row two">
           <div>
             <label for="size">T-shirt size *</label>
-            <span class="hint">Youth: YS, YM, YL · Adult: AS, AM, AL, XL, XXL, XXXL</span>
+            <span class="hint">Youth: YS, YM, YL · Adult: AS, AM, AL...</span>
             <select id="size" name="size" required>
               <option value="">Select a size…</option>
               <option>YS</option><option>YM</option><option>YL</option>
@@ -90,7 +95,6 @@
           <div class="counter"><span id="count">0</span>/250</div>
         </div>
 
-        <!-- Optional: parent contact, if you want it in the row -->
         <div class="row two">
           <div>
             <label for="parentEmail">Parent email (optional)</label>
@@ -102,22 +106,18 @@
           </div>
         </div>
 
-        <!-- Redirect to a clean thank-you page after submit -->
         <input type="hidden" name="_redirect" value="https://zzz-jdb-zzz.github.io/thanks.html" />
-        <!-- Optional: subject if you turn on email notifications in Formspree -->
         <input type="hidden" name="_subject" value="USYVL T-Shirt Request" />
 
         <div class="btns">
           <button class="primary" type="submit">Send Request</button>
           <button class="danger" type="reset" id="resetBtn">Reset</button>
         </div>
-        <div id="status" class="hint"></div>
       </form>
     </section>
   </div>
 
   <script>
-    // Tiny UX niceties (no dependency on Formspree)
     const reasonEl = document.getElementById('reason');
     const otherWrap = document.getElementById('otherWrap');
     const otherText = document.getElementById('otherText');
