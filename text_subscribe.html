@@ -22,30 +22,48 @@
     .form-container h2 {
       margin-bottom: 20px;
     }
+    h3 {
+      font-size: 14px;
+      color: #333;
+      margin: 15px 0 10px;
+      text-align: left;
+    }
     .radio-group {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 15px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
     .radio-group label {
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
+      background: #f1f1f1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    /* Simple highlight when radio is checked */
+    .radio-group input[type="radio"]:checked + span {
+      font-weight: bold;
     }
     .form-container input[type="tel"],
     .form-container button {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 10px;
       border-radius: 4px;
       border: 1px solid #ccc;
       font-size: 16px;
+      box-sizing: border-box;
     }
     .form-container button {
       background-color: #1a472a;
       color: #fff;
       border: none;
       cursor: pointer;
+      font-weight: bold;
+      margin-top: 20px;
     }
     .form-container button:hover {
       background-color: #14521f;
@@ -53,8 +71,9 @@
     .disclaimer {
       font-size: 12px;
       color: #555;
-      margin-top: 10px;
+      margin-top: 15px;
       text-align: left;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -63,11 +82,20 @@
   <div class="form-container">
     <h2>Join a Text Group</h2>
     <form method="POST" action="https://manage.kmail-lists.com/subscriptions/subscribe" data-ajax-submit="https://manage.kmail-lists.com/ajax/subscriptions/subscribe">
-      <!-- Klaviyo required hidden fields -->
       <input type="hidden" name="g" value="VBEnid">
       <input type="hidden" name="a" value="Ye2PfH">
 
-      <!-- Radio buttons (horizontal + centered) -->
+      <h3>1. Select Your Site*</h3>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="site_location" value="Arroyo Grande" required> Arroyo Grande
+        </label>
+        <label>
+          <input type="radio" name="site_location" value="Santa Maria" required> Santa Maria
+        </label>
+      </div>
+
+      <h3>2. Select Groups*</h3>
       <div class="radio-group">
         <label>
           <input type="radio" name="Select Groups 1" value="USYVL"> USYVL
@@ -80,11 +108,9 @@
         </label>
       </div>
 
-      <!-- Phone number field -->
-      <label for="phone">Phone Number*</label>
+      <h3 style="margin-bottom: 5px;">3. Phone Number*</h3>
       <input type="tel" name="phone_number" id="phone" required placeholder="Enter your phone number">
 
-      <!-- Submit button -->
       <button type="submit">Subscribe</button>
 
       <p class="disclaimer">
