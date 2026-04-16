@@ -17,8 +17,7 @@
     .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--border);
       border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
     label{display:block;font-weight:600;margin:16px 0 6px}
-    .hint{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input[type="text"],input[type="email"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
+    input[type="text"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
       background:#0b1220;color:var(--text);outline:none}
     textarea{min-height:110px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr;gap:12px}
@@ -35,7 +34,7 @@
     <div class="warning-banner">Coaches Use Only</div>
     <header style="margin-bottom:16px;">
       <h1>Player Transfer Request</h1>
-      <p class="lead">Submit this form to move a player from one team to another.</p>
+      <p class="lead">Specify the child's name and the team numbers for the move.</p>
     </header>
 
     <section class="card">
@@ -49,32 +48,33 @@
           <option value="Santa Maria">Santa Maria (SM)</option>
         </select>
 
-        <h3 style="margin:25px 0 10px; color:var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Player Information</h3>
+        <h3 style="margin:25px 0 10px; color:var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Transfer Details</h3>
+        
+        <div>
+          <label for="childName">Child’s Full Name *</label>
+          <input id="childName" name="child_name" type="text" required placeholder="First and Last Name" />
+        </div>
+
         <div class="row two">
           <div>
-            <label for="childName">Child’s Full Name *</label>
-            <input id="childName" name="child_name" type="text" required placeholder="Full Name" />
+            <label for="fromTeam">Transferring FROM Team # *</label>
+            <input id="fromTeam" name="from_team_number" type="text" required placeholder="e.g., Team 4" />
           </div>
           <div>
-            <label for="currentTeam">Current Team Name/# *</label>
-            <input id="currentTeam" name="from_team" type="text" required placeholder="e.g., Team 4" />
+            <label for="toTeam">Transferring TO Team # *</label>
+            <input id="toTeam" name="to_team_number" type="text" required placeholder="e.g., Team 12" />
           </div>
         </div>
 
-        <h3 style="margin:25px 0 10px; color:var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Coach Information</h3>
-        <div class="row two">
-          <div>
-            <label for="coachName">Requesting Coach Name *</label>
-            <input id="coachName" name="coach_name" type="text" required placeholder="Your Name" />
-          </div>
-          <div>
-            <label for="newTeam">Your Team Name/# *</label>
-            <input id="newTeam" name="to_team" type="text" required placeholder="e.g., Team 12" />
-          </div>
+        <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+
+        <div>
+          <label for="coachName">Requesting Coach Name *</label>
+          <input id="coachName" name="requesting_coach" type="text" required placeholder="Your Full Name" />
         </div>
 
         <label for="notes">Notes/Reason</label>
-        <textarea id="notes" name="notes" placeholder="Optional details..."></textarea>
+        <textarea id="notes" name="notes" placeholder="Any additional details..."></textarea>
 
         <input type="hidden" name="_redirect" value="https://zzz-jdb-zzz.github.io/thanks.html" />
         <input type="hidden" name="_subject" value="New Player Transfer Request" />
