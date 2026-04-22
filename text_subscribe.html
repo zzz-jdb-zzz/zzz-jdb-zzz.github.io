@@ -43,7 +43,6 @@
       border-radius: 6px;
       border: 1px solid #ddd;
     }
-    /* Simple highlight when radio is checked */
     .radio-group input[type="radio"]:checked + span {
       font-weight: bold;
     }
@@ -75,49 +74,77 @@
       text-align: left;
       line-height: 1.4;
     }
+    /* Style for the success message */
+    #klaviyo_success {
+      display: none;
+      padding: 20px;
+      font-weight: bold;
+      color: #1a472a;
+    }
   </style>
 </head>
 <body>
 
   <div class="form-container">
-    <h2>Join a Text Group</h2>
-    <form method="POST" action="https://manage.kmail-lists.com/subscriptions/subscribe" data-ajax-submit="https://manage.kmail-lists.com/ajax/subscriptions/subscribe">
-      <input type="hidden" name="g" value="VBEnid">
-      <input type="hidden" name="a" value="Ye2PfH">
+    <div id="klaviyo_form_wrapper">
+      <h2>Join a Text Group</h2>
+      <form id="email_signup" action="//manage.kmail-lists.com/ajax/subscriptions/subscribe" method="POST">
+        <input type="hidden" name="g" value="VBEnid">
+        <input type="hidden" name="a" value="Ye2PfH">
 
-      <h3>1. Select Your Site*</h3>
-      <div class="radio-group">
-        <label>
-          <input type="radio" name="site_location" value="Arroyo Grande" required> Arroyo Grande
-        </label>
-        <label>
-          <input type="radio" name="site_location" value="Santa Maria" required> Santa Maria
-        </label>
-      </div>
+        <h3>1. Select Your Site*</h3>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="site_location" value="Arroyo Grande" required> <span>Arroyo Grande</span>
+          </label>
+          <label>
+            <input type="radio" name="site_location" value="Santa Maria" required> <span>Santa Maria</span>
+          </label>
+        </div>
 
-      <h3>2. Select Groups*</h3>
-      <div class="radio-group">
-        <label>
-          <input type="radio" name="Select Groups 1" value="USYVL"> USYVL
-        </label>
-        <label>
-          <input type="radio" name="Select Groups 1" value="Open Rec"> Open Rec
-        </label>
-        <label>
-          <input type="radio" name="Select Groups 1" value="Both" checked="checked"> Both
-        </label>
-      </div>
+        <h3>2. Select Groups*</h3>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="Select Groups 1" value="USYVL"> <span>USYVL</span>
+          </label>
+          <label>
+            <input type="radio" name="Select Groups 1" value="Open Rec"> <span>Open Rec</span>
+          </label>
+          <label>
+            <input type="radio" name="Select Groups 1" value="Both" checked="checked"> <span>Both</span>
+          </label>
+        </div>
 
-      <h3 style="margin-bottom: 5px;">3. Phone Number*</h3>
-      <input type="tel" name="phone_number" id="phone" required placeholder="Enter your phone number">
+        <h3 style="margin-bottom: 5px;">3. Phone Number*</h3>
+        <input type="tel" name="$phone_number" id="phone" required placeholder="Enter your phone number">
 
-      <button type="submit">Subscribe</button>
+        <button type="submit">Subscribe</button>
 
-      <p class="disclaimer">
-        By submitting this form, you agree to receive text messages about practice schedules, updates, and important reminders. Msg & data rates may apply. You can unsubscribe at any time by replying STOP.
-      </p>
-    </form>
+        <p class="disclaimer">
+          By submitting this form, you agree to receive text messages about practice schedules, updates, and important reminders. Msg & data rates may apply. You can unsubscribe at any time by replying STOP.
+        </p>
+      </form>
+    </div>
+
+    <div id="klaviyo_success">
+      Success! You have been added to the list.
+    </div>
   </div>
+
+  <script type="text/javascript" src="//www.klaviyo.com/media/js/public/klaviyo_subscribe.js"></script>
+  <script type="text/javascript">
+    KlaviyoSubscribe.attachToForms('#email_signup', {
+      hide_form_on_success: true,
+      success: function ($form) {
+        // This hides the form and shows the success message
+        document.getElementById('klaviyo_form_wrapper').style.display = 'none';
+        document.getElementById('klaviyo_success').style.display = 'block';
+      },
+      extra_properties: {
+        $source: 'Linktree_Form'
+      }
+    });
+  </script>
 
 </body>
 </html>
