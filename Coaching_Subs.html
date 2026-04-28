@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>USYVL Coach Absence Notification</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#3b82f6;--danger:#ef4444;--border:#1f2937}
+    *{box-sizing:border-box}
+    body{margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);color:var(--text)}
+    .wrap{max-width:720px;margin:0 auto}
+    h1{margin:0 0 10px;font-size:clamp(24px,4vw,36px)}
+    .warning-banner {background: rgba(239, 68, 68, 0.2); border: 2px solid var(--danger); color: #fca5a5; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight: 800; text-align: center; text-transform: uppercase;}
+    p.lead{margin:0 0 22px;color:var(--muted);line-height:1.5}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--border);
+      border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    label{display:block;font-weight:600;margin:16px 0 6px}
+    input[type="text"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
+      background:#0b1220;color:var(--text);outline:none}
+    textarea{min-height:110px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width:680px){.row.two{grid-template-columns:1fr 1fr}}
+    .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    button{appearance:none;border:1px solid var(--border);cursor:pointer;background:#0b1220;color:var(--text);
+      padding:10px 14px;border-radius:10px;font-weight:600}
+    button.primary{background:var(--accent);border-color:transparent;color:#fff}
+    .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="warning-banner">Coaches Use Only</div>
+    <header style="margin-bottom:16px;">
+      <h1>Practice Absence Notification</h1>
+      <p class="lead">Use this form if you cannot make a scheduled practice.</p>
+    </header>
+
+    <section class="card">
+      <form action="https://formspree.io/f/xwprqdkb" method="POST">
+        <input class="sr" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+
+        <label for="location">Site Location *</label>
+        <select id="location" name="location" required>
+          <option value="">Select city...</option>
+          <option value="Arroyo Grande">Arroyo Grande (AG)</option>
+          <option value="Santa Maria">Santa Maria (SM)</option>
+        </select>
+
+        <h3 style="margin:25px 0 10px; color:var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Coach Details</h3>
+        
+        <div class="row two">
+          <div>
+            <label for="coachName">Coach Name *</label>
+            <input id="coachName" name="coach_name" type="text" required placeholder="Your Full Name" />
+          </div>
+          <div>
+            <label for="team">Team Name or # *</label>
+            <input id="team" name="team_identifier" type="text" required placeholder="e.g., Team 7 / Blue" />
+          </div>
+        </div>
+
+        <h3 style="margin:25px 0 10px; color:var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 5px;">Absence Information</h3>
+
+        <div>
+          <label for="days">Days Unavailable *</label>
+          <input id="days" name="days_absent" type="text" required placeholder="e.g., Tuesday Oct 12th & Thursday Oct 14th" />
+        </div>
+
+        <div>
+          <label for="subs">Available Subs (If known)</label>
+          <textarea id="subs" name="available_subs" placeholder="List any assistant coaches or parents who can step in..."></textarea>
+        </div>
+
+        <label for="notes">Additional Notes</label>
+        <textarea id="notes" name="additional_notes" placeholder="Any other info for the Site Director..."></textarea>
+
+        <input type="hidden" name="_redirect" value="https://zzz-jdb-zzz.github.io/thanks.html" />
+        <input type="hidden" name="_subject" value="USYVL Absence: Coach Notification" />
+
+        <div class="btns">
+          <button class="primary" type="submit">Submit Notification</button>
+          <button type="reset" style="color: var(--muted);">Clear Form</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</body>
+</html>
