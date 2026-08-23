@@ -31,14 +31,14 @@
     button.primary{background:var(--accent);border-color:transparent;color:#fff}
     button.danger{background:var(--danger);border-color:transparent;color:#fff}
     button.voice{background:#1e293b;border-color:var(--accent);color:#fff}
-    button.listening{background:var(--danger);border-color:transparent;animation:pulse 1.5s infinite}
     .mic-btn{position:absolute;right:8px;background:none;border:none;color:var(--muted);padding:6px;cursor:pointer;border-radius:6px}
     .mic-btn:hover{color:var(--accent)}
+    .mic-btn.active, button.active{color:var(--danger);animation:pulse 1s infinite}
     .counter{font-size:12px;color:var(--muted);text-align:right}
     .hidden{display:none}
     .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
-    #voiceStatus{font-size:13px;color:var(--accent);margin-top:8px;font-weight:500}
-    @keyframes pulse{0%{opacity:1}50%{opacity:0.5}100%{opacity:1}}
+    #voiceStatus{font-size:13px;color:var(--accent);margin-top:12px;padding:8px 12px;background:#1e293b;border-radius:8px;font-weight:500}
+    @keyframes pulse{0%{opacity:1}50%{opacity:0.4}100%{opacity:1}}
   </style>
 </head>
 <body>
@@ -162,7 +162,7 @@
     });
     otherText?.addEventListener('input', () => count.textContent = otherText.value.length);
 
-    // --- Speech Recognition Logic ---
+    // --- Robust Speech Recognition Logic ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
@@ -175,35 +175,65 @@
       recognition.lang = 'en-US';
 
       let activeTarget = null;
+      let activeBtn = null;
+
+      function startListening(target, btn, statusMessage) {
+        try {
+          recognition.stop();
+        } catch(e) {}
+        
+        activeTarget = target;
+        activeBtn = btn;
+        
+        // Visual indicator
+        document.querySelectorAll('.mic-btn, #globalVoiceBtn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        showStatus(statusMessage);
+
+        // Force browser audio permission check first
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(() => {
+            recognition.start();
+          })
+          .catch((err) => {
+            showStatus('Microphone blocked. Please allow mic access in your browser site settings.');
+            resetVoiceUI();
+          });
+      }
 
       // Single Field Mic Buttons
       document.querySelectorAll('.mic-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
           const targetId = btn.getAttribute('data-target');
-          activeTarget = document.getElementById(targetId);
-          showStatus(`Listening for ${activeTarget.previousElementSibling?.textContent || 'field'}...`);
-          recognition.start();
+          const targetEl = document.getElementById(targetId);
+          startListening(targetEl, btn, '🎙️ Listening... Speak now');
         });
       });
 
       // Global Voice Fill Button
-      globalVoiceBtn.addEventListener('click', () => {
-        activeTarget = 'GLOBAL';
-        globalVoiceBtn.classList.add('listening');
-        globalVoiceBtn.textContent = 'Listening... Speak entire request';
-        showStatus('Example: "Santa Maria, child Ava Martinez, Team 7, Adult Medium, Wrong size"');
-        recognition.start();
+      globalVoiceBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        startListening('GLOBAL', globalVoiceBtn, '🎙️ Listening... Speak entire request (e.g. "Santa Maria Ava Martinez Team 7 Adult Medium")');
       });
+
+      recognition.onstart = () => {
+        // Recognition connected
+      };
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript.trim();
-        showStatus(`Heard: "${transcript}"`);
+        showStatus(`✓ Heard: "${transcript}"`);
 
         if (activeTarget === 'GLOBAL') {
           parseGlobalSpeech(transcript.toLowerCase());
         } else if (activeTarget) {
           if (activeTarget.type === 'email') {
-            activeTarget.value = transcript.toLowerCase().replace(/\s+at\s+/g, '@').replace(/\s+dot\s+/g, '.').replace(/\s+/g, '');
+            activeTarget.value = transcript.toLowerCase()
+              .replace(/\s+at\s+/g, '@')
+              .replace(/\s+dot\s+/g, '.')
+              .replace(/\s+/g, '');
           } else {
             activeTarget.value = transcript;
           }
@@ -212,8 +242,14 @@
         resetVoiceUI();
       };
 
-      recognition.onerror = () => {
-        showStatus('Voice recognition failed or timed out. Try again.');
+      recognition.onerror = (event) => {
+        if (event.error === 'no-speech') {
+          showStatus('Didn\'t hear anything. Tap mic and try speaking closer.');
+        } else if (event.error === 'not-allowed') {
+          showStatus('Microphone access denied. Tap the lock icon in browser URL bar to allow.');
+        } else {
+          showStatus(`Speech error: ${event.error}`);
+        }
         resetVoiceUI();
       };
 
@@ -222,11 +258,9 @@
       };
 
       function parseGlobalSpeech(text) {
-        // Parse Location
         if (text.includes('santa maria') || text.includes('santa')) document.getElementById('location').value = 'Santa Maria';
         if (text.includes('arroyo') || text.includes('grande')) document.getElementById('location').value = 'Arroyo Grande';
 
-        // Parse Size
         const sizes = {
           'youth small': 'YS', 'youth medium': 'YM', 'youth large': 'YL',
           'adult small': 'AS', 'adult medium': 'AM', 'adult large': 'AL',
@@ -236,7 +270,6 @@
           if (text.includes(phrase)) { document.getElementById('size').value = code; break; }
         }
 
-        // Parse Reason
         if (text.includes('never') || text.includes('didn\'t get')) document.getElementById('reason').value = 'Never got it';
         if (text.includes('wrong size') || text.includes('small') || text.includes('large')) document.getElementById('reason').value = 'Got wrong size';
         
@@ -249,8 +282,9 @@
       }
 
       function resetVoiceUI() {
-        globalVoiceBtn.classList.remove('listening');
-        globalVoiceBtn.textContent = '🎤 Smart Voice Fill';
+        if (activeBtn) activeBtn.classList.remove('active');
+        activeTarget = null;
+        activeBtn = null;
       }
     }
   </script>
