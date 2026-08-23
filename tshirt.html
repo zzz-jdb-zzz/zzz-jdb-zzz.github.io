@@ -6,35 +6,47 @@
   <title>USYVL T-Shirt Request</title>
   <meta name="robots" content="noindex" />
   <style>
-    :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#3b82f6;--danger:#ef4444;--border:#1f2937}
+    :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#3b82f6;--danger:#ef4444;--border:#1f2937;--success:#22c55e}
     *{box-sizing:border-box}
     body{margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
       background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);color:var(--text)}
     .wrap{max-width:720px;margin:0 auto}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;margin-bottom:12px;transition:color 0.2s}
+    .back-btn:hover{color:var(--text)}
     h1{margin:0 0 10px;font-size:clamp(24px,4vw,36px)}
     p.lead{margin:0 0 22px;color:var(--muted);line-height:1.5}
     .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--border);
       border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
     label{display:block;font-weight:600;margin:16px 0 6px}
     .hint{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    .input-group{position:relative;display:flex;align-items:center}
     input[type="text"],input[type="email"],textarea,select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
       background:#0b1220;color:var(--text);outline:none}
     textarea{min-height:110px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr;gap:12px}
     @media (min-width:680px){.row.two{grid-template-columns:1fr 1fr}}
-    .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .btns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
     button{appearance:none;border:1px solid var(--border);cursor:pointer;background:#0b1220;color:var(--text);
-      padding:10px 14px;border-radius:10px;font-weight:600}
+      padding:10px 14px;border-radius:10px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
     button.primary{background:var(--accent);border-color:transparent;color:#fff}
     button.danger{background:var(--danger);border-color:transparent;color:#fff}
+    button.voice{background:#1e293b;border-color:var(--accent);color:#fff}
+    button.listening{background:var(--danger);border-color:transparent;animation:pulse 1.5s infinite}
+    .mic-btn{position:absolute;right:8px;background:none;border:none;color:var(--muted);padding:6px;cursor:pointer;border-radius:6px}
+    .mic-btn:hover{color:var(--accent)}
     .counter{font-size:12px;color:var(--muted);text-align:right}
     .hidden{display:none}
     .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+    #voiceStatus{font-size:13px;color:var(--accent);margin-top:8px;font-weight:500}
+    @keyframes pulse{0%{opacity:1}50%{opacity:0.5}100%{opacity:1}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header style="margin-bottom:16px;">
+      <a href="javascript:history.back()" class="back-btn" aria-label="Go back to previous page">
+        ‹ Back
+      </a>
       <h1>USYVL T-Shirt Request</h1>
       <p class="lead">Fill this out to request or replace a league T-shirt.</p>
     </header>
@@ -57,12 +69,18 @@
           <div>
             <label for="childName">Child’s name *</label>
             <span class="hint">First and last name.</span>
-            <input id="childName" name="child_name" type="text" required placeholder="e.g., Ava Martinez" />
+            <div class="input-group">
+              <input id="childName" name="child_name" type="text" required placeholder="e.g., Ava Martinez" />
+              <button type="button" class="mic-btn" data-target="childName" title="Dictate name">🎤</button>
+            </div>
           </div>
           <div>
             <label for="team">Team number or name *</label>
             <span class="hint">If unknown, type “Unknown”.</span>
-            <input id="team" name="team" type="text" required placeholder="e.g., Team 7 — Blue" />
+            <div class="input-group">
+              <input id="team" name="team" type="text" required placeholder="e.g., Team 7 — Blue" />
+              <button type="button" class="mic-btn" data-target="team" title="Dictate team">🎤</button>
+            </div>
           </div>
         </div>
 
@@ -72,9 +90,9 @@
             <span class="hint">Youth: YS, YM, YL · Adult: AS, AM, AL...</span>
             <select id="size" name="size" required>
               <option value="">Select a size…</option>
-              <option>YS</option><option>YM</option><option>YL</option>
-              <option>AS</option><option>AM</option><option>AL</option>
-              <option>XL</option><option>XXL</option><option>XXXL</option>
+              <option value="YS">YS</option><option value="YM">YM</option><option value="YL">YL</option>
+              <option value="AS">AS</option><option value="AM">AM</option><option value="AL">AL</option>
+              <option value="XL">XL</option><option value="XXL">XXL</option><option value="XXXL">XXXL</option>
             </select>
           </div>
           <div>
@@ -82,35 +100,47 @@
             <span class="hint">Choose one.</span>
             <select id="reason" name="reason" required>
               <option value="">Select a reason…</option>
-              <option>Never got it</option>
-              <option>Got wrong size</option>
-              <option>Other</option>
+              <option value="Never got it">Never got it</option>
+              <option value="Got wrong size">Got wrong size</option>
+              <option value="Other">Other</option>
             </select>
           </div>
         </div>
 
         <div id="otherWrap" class="hidden">
           <label for="otherText">Explain “Other” (max 250 chars)</label>
-          <textarea id="otherText" name="reason_other" maxlength="250" placeholder="Brief explanation…"></textarea>
+          <div class="input-group">
+            <textarea id="otherText" name="reason_other" maxlength="250" placeholder="Brief explanation…"></textarea>
+            <button type="button" class="mic-btn" data-target="otherText" title="Dictate explanation">🎤</button>
+          </div>
           <div class="counter"><span id="count">0</span>/250</div>
         </div>
 
         <div class="row two">
           <div>
             <label for="parentEmail">Parent email (optional)</label>
-            <input id="parentEmail" name="parent_email" type="email" placeholder="parent@email.com" />
+            <div class="input-group">
+              <input id="parentEmail" name="parent_email" type="email" placeholder="parent@email.com" />
+              <button type="button" class="mic-btn" data-target="parentEmail" title="Dictate email">🎤</button>
+            </div>
           </div>
           <div>
             <label for="notes">Notes (optional)</label>
-            <input id="notes" name="notes" type="text" placeholder="Any extra info…" />
+            <div class="input-group">
+              <input id="notes" name="notes" type="text" placeholder="Any extra info…" />
+              <button type="button" class="mic-btn" data-target="notes" title="Dictate notes">🎤</button>
+            </div>
           </div>
         </div>
 
         <input type="hidden" name="_redirect" value="https://zzz-jdb-zzz.github.io/thanks.html" />
         <input type="hidden" name="_subject" value="USYVL T-Shirt Request" />
 
+        <div id="voiceStatus" class="hidden"></div>
+
         <div class="btns">
           <button class="primary" type="submit">Send Request</button>
+          <button type="button" id="globalVoiceBtn" class="voice">🎤 Smart Voice Fill</button>
           <button class="danger" type="reset" id="resetBtn">Reset</button>
         </div>
       </form>
@@ -122,12 +152,107 @@
     const otherWrap = document.getElementById('otherWrap');
     const otherText = document.getElementById('otherText');
     const count = document.getElementById('count');
+    const voiceStatus = document.getElementById('voiceStatus');
+    const globalVoiceBtn = document.getElementById('globalVoiceBtn');
+
     reasonEl.addEventListener('change', () => {
       const show = reasonEl.value === 'Other';
       otherWrap.classList.toggle('hidden', !show);
       if (!show) { otherText.value = ''; count.textContent = '0'; }
     });
     otherText?.addEventListener('input', () => count.textContent = otherText.value.length);
+
+    // --- Speech Recognition Logic ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      globalVoiceBtn.style.display = 'none';
+      document.querySelectorAll('.mic-btn').forEach(b => b.style.display = 'none');
+    } else {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      let activeTarget = null;
+
+      // Single Field Mic Buttons
+      document.querySelectorAll('.mic-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const targetId = btn.getAttribute('data-target');
+          activeTarget = document.getElementById(targetId);
+          showStatus(`Listening for ${activeTarget.previousElementSibling?.textContent || 'field'}...`);
+          recognition.start();
+        });
+      });
+
+      // Global Voice Fill Button
+      globalVoiceBtn.addEventListener('click', () => {
+        activeTarget = 'GLOBAL';
+        globalVoiceBtn.classList.add('listening');
+        globalVoiceBtn.textContent = 'Listening... Speak entire request';
+        showStatus('Example: "Santa Maria, child Ava Martinez, Team 7, Adult Medium, Wrong size"');
+        recognition.start();
+      });
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        showStatus(`Heard: "${transcript}"`);
+
+        if (activeTarget === 'GLOBAL') {
+          parseGlobalSpeech(transcript.toLowerCase());
+        } else if (activeTarget) {
+          if (activeTarget.type === 'email') {
+            activeTarget.value = transcript.toLowerCase().replace(/\s+at\s+/g, '@').replace(/\s+dot\s+/g, '.').replace(/\s+/g, '');
+          } else {
+            activeTarget.value = transcript;
+          }
+          activeTarget.dispatchEvent(new Event('input'));
+        }
+        resetVoiceUI();
+      };
+
+      recognition.onerror = () => {
+        showStatus('Voice recognition failed or timed out. Try again.');
+        resetVoiceUI();
+      };
+
+      recognition.onend = () => {
+        resetVoiceUI();
+      };
+
+      function parseGlobalSpeech(text) {
+        // Parse Location
+        if (text.includes('santa maria') || text.includes('santa')) document.getElementById('location').value = 'Santa Maria';
+        if (text.includes('arroyo') || text.includes('grande')) document.getElementById('location').value = 'Arroyo Grande';
+
+        // Parse Size
+        const sizes = {
+          'youth small': 'YS', 'youth medium': 'YM', 'youth large': 'YL',
+          'adult small': 'AS', 'adult medium': 'AM', 'adult large': 'AL',
+          'extra large': 'XL', '2xl': 'XXL', '3xl': 'XXXL'
+        };
+        for (let [phrase, code] of Object.entries(sizes)) {
+          if (text.includes(phrase)) { document.getElementById('size').value = code; break; }
+        }
+
+        // Parse Reason
+        if (text.includes('never') || text.includes('didn\'t get')) document.getElementById('reason').value = 'Never got it';
+        if (text.includes('wrong size') || text.includes('small') || text.includes('large')) document.getElementById('reason').value = 'Got wrong size';
+        
+        reasonEl.dispatchEvent(new Event('change'));
+      }
+
+      function showStatus(msg) {
+        voiceStatus.textContent = msg;
+        voiceStatus.classList.remove('hidden');
+      }
+
+      function resetVoiceUI() {
+        globalVoiceBtn.classList.remove('listening');
+        globalVoiceBtn.textContent = '🎤 Smart Voice Fill';
+      }
+    }
   </script>
 </body>
 </html>
