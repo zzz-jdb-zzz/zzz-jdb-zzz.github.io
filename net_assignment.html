@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>USYVL Net Assignment</title>
+  <meta name="robots" content="noindex" />
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#3b82f6;--danger:#ef4444;--border:#1f2937}
+    *{box-sizing:border-box}
+    body{margin:0;padding:24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:radial-gradient(1200px 800px at 20% -10%,#1e293b 0,#0f172a 60%);color:var(--text)}
+    .wrap{max-width:720px;margin:0 auto}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;margin-bottom:12px}
+    .back-btn:hover{color:var(--text)}
+    h1{margin:0 0 10px;font-size:clamp(24px,4vw,36px)}
+    p.lead{margin:0 0 22px;color:var(--muted);line-height:1.5}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border:1px solid var(--border);
+      border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    label{display:block;font-weight:600;margin:16px 0 6px}
+    .hint{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type="text"],input[type="email"],input[type="tel"],select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);
+      background:#0b1220;color:var(--text);outline:none;font-size:16px}
+    .row{display:grid;grid-template-columns:1fr;gap:12px}
+    @media (min-width:680px){.row.two{grid-template-columns:1fr 1fr}}
+    .btns{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;align-items:center}
+    button{appearance:none;border:1px solid var(--border);cursor:pointer;background:#0b1220;color:var(--text);
+      padding:12px 20px;border-radius:10px;font-weight:600;font-size:15px;display:inline-flex;align-items:center;gap:6px}
+    button.primary{background:var(--accent);border-color:transparent;color:#fff}
+    button.danger{background:var(--danger);border-color:transparent;color:#fff}
+    .hidden{display:none}
+    .sr{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header style="margin-bottom:16px;">
+      <a href="javascript:history.back()" class="back-btn" aria-label="Go back">‹ Back</a>
+      <h1>Net Assignment</h1>
+      <p class="lead">Assign coaches to net locations and teams.</p>
+    </header>
+
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title" class="sr">Net Assignment Form</h2>
+
+      <form id="form" action="https://formspree.io/f/xwprqdkb" method="POST">
+        <input class="sr" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+
+        <div class="row two">
+          <div>
+            <label for="location">Site Location *</label>
+            <select id="location" name="location" required>
+              <option value="">Select a city...</option>
+              <option value="Arroyo Grande">Arroyo Grande (AG)</option>
+              <option value="Santa Maria">Santa Maria (SM)</option>
+            </select>
+          </div>
+          <div>
+            <label for="netId">Net ID *</label>
+            <select id="netId" name="net_id" required>
+              <option value="">Select Net (A–P)...</option>
+              <option value="A">Net A</option><option value="B">Net B</option>
+              <option value="C">Net C</option><option value="D">Net D</option>
+              <option value="E">Net E</option><option value="F">Net F</option>
+              <option value="G">Net G</option><option value="H">Net H</option>
+              <option value="I">Net I</option><option value="J">Net J</option>
+              <option value="K">Net K</option><option value="L">Net L</option>
+              <option value="M">Net M</option><option value="N">Net N</option>
+              <option value="O">Net O</option><option value="P">Net P</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="coachLookup">Coach Name *</label>
+        <span class="hint">Select your name from the roster list.</span>
+        <select id="coachLookup" name="coach_lookup" required>
+          <option value="">Select Coach Name...</option>
+          <option value="MANUAL">-- Not Listed (Manual Entry) --</option>
+        </select>
+
+        <div id="manualCoachWrap" class="hidden">
+          <label for="coachName">Coach Full Name (Manual Entry) *</label>
+          <input id="coachName" name="coach_name_manual" type="text" placeholder="e.g., John Smith" autocomplete="name" />
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="team">Team Number *</label>
+            <input id="team" name="team" type="text" required placeholder="e.g., Team 3" />
+          </div>
+          <div>
+            <label for="childName">Child’s Name (optional)</label>
+            <span class="hint">If different last name.</span>
+            <input id="childName" name="child_name" type="text" placeholder="e.g., Sam Wilson" />
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="coachEmail">Email</label>
+            <input id="coachEmail" name="coach_email" type="email" placeholder="coach@email.com" autocomplete="email" />
+          </div>
+          <div>
+            <label for="coachPhone">Cellphone (optional)</label>
+            <input id="coachPhone" name="coach_phone" type="tel" placeholder="(805) 555-0199" autocomplete="tel" />
+          </div>
+        </div>
+
+        <input type="hidden" name="_redirect" value="https://zzz-jdb-zzz.github.io/thanks.html" />
+        <input type="hidden" name="_subject" value="USYVL Net Assignment Submission" />
+
+        <div class="btns">
+          <button class="primary" type="submit">Submit Assignment</button>
+          <button class="danger" type="reset" id="resetBtn">Reset</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const coachLookup = document.getElementById('coachLookup');
+    const manualWrap = document.getElementById('manualCoachWrap');
+    const coachNameInput = document.getElementById('coachName');
+    const coachEmailInput = document.getElementById('coachEmail');
+    const coachPhoneInput = document.getElementById('coachPhone');
+    const childNameInput = document.getElementById('childName');
+
+    // Sample roster data array (Will be replaced by CSV fetch)
+    let rosterData = [
+      { id: 1, last: "Balakrishnan", first: "Jerald", email: "jerald@example.com", phone: "805-555-0100", child: "Alex Balakrishnan" },
+      { id: 2, last: "Martinez", first: "Ava", email: "ava.m@example.com", phone: "805-555-0101", child: "Leo Martinez" },
+      { id: 3, last: "Smith", first: "Robert", email: "rsmith@example.com", phone: "805-555-0102", child: "Taylor Smith" }
+    ];
+
+    function populateRosterDropdown(data) {
+      data.sort((a, b) => a.last.localeCompare(b.last));
+      data.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.textContent = `${item.last}, ${item.first} (#${item.id})`;
+        coachLookup.appendChild(opt);
+      });
+    }
+
+    populateRosterDropdown(rosterData);
+
+    coachLookup.addEventListener('change', () => {
+      const val = coachLookup.value;
+      if (val === 'MANUAL') {
+        manualWrap.classList.remove('hidden');
+        coachNameInput.required = true;
+        coachEmailInput.value = '';
+        coachPhoneInput.value = '';
+        childNameInput.value = '';
+      } else {
+        manualWrap.classList.add('hidden');
+        coachNameInput.required = false;
+        coachNameInput.value = '';
+        
+        const selected = rosterData.find(r => r.id == val);
+        if (selected) {
+          coachEmailInput.value = selected.email || '';
+          coachPhoneInput.value = selected.phone || '';
+          childNameInput.value = selected.child || '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
